@@ -232,7 +232,7 @@
 \NewDocumentCommand{\bhrule}{}{\typeout{--------------------}}
 \NewDocumentCommand{\tttypeout}{m}{\bhrule\typeout{\space #1}\bhrule}
 
-\newcommand{\HRule}{\rule{.9\linewidth}{.6pt}} % New command to make the lines in the title page
+\newcommand{\HRule}{\rule{1.0\linewidth}{.6pt}} % New command to make the lines in the title page
 \newcommand{\decoRule}{\rule{.8\textwidth}{.4pt}} % New command for a rule to be used under figures
 
 \setcounter{tocdepth}{3} % The depth to which the document sections are printed to the table of contents
@@ -346,9 +346,9 @@ KOMA-script documentation for details.}]{fancyhdr}
 \ifbool{consistentlayout}{
 	\DeclareDocumentEnvironment{abstract}{ O{} }{%
 		\addchap*{\abstractname}%
-		{\chapteralign\normalsize\abstractauthorfont \authorname \par}% Author name
-		\vspace{\baselineskip}
-		{\chapteralign\parbox{.7\linewidth}{\chapteralign\normalsize\itshape\abstracttitlefont\@title}\par}% Thesis title
+		%{\chapteralign\normalsize\abstractauthorfont \authorname \par}% Author name
+		%\vspace{\baselineskip}
+		%{\chapteralign\parbox{.7\linewidth}{\chapteralign\normalsize\itshape\abstracttitlefont\@title}\par}% Thesis title
 		\bigskip\noindent\ignorespaces
 	}%
 	{}%end alt-abstract
@@ -359,19 +359,19 @@ KOMA-script documentation for details.}]{fancyhdr}
 		#1%added to be able to have abstract more than one page long
 		\thispagestyle{plain}
 		\begin{center}
-			{\normalsize \MakeUppercase{\univname} \par}% University name in capitals
-			\bigskip
+			%{\normalsize \MakeUppercase{\univname} \par}% University name in capitals
+			%\bigskip
 			{\huge\textit{\abstractname} \par}
-			\bigskip
-			{\normalsize \facname \par}% Faculty name
-			{\normalsize \deptname \par}% Department name
-			\bigskip
-			{\normalsize \degreename\par}% Degree name
-			\bigskip
-			{\normalsize\bfseries \@title \par}% Thesis title
-			\medskip
-			{\normalsize \byname{} \authorname \par}% Author name
-			\bigskip
+                        \vspace{1cm}
+			%{\normalsize \facname \par}% Faculty name
+			%{\normalsize \deptname \par}% Department name
+			%\bigskip
+			%{\normalsize \degreename\par}% Degree name
+			%\bigskip
+			%{\normalsize\bfseries \@title \par}% Thesis title
+			%\bigskip
+			%{\normalsize \authorname \par}% Author name
+                        %\vspace{2cm}
 		\end{center}
 	}
 	{
@@ -524,7 +524,7 @@ bookmarksopenlevel=0,
 hypertexnames=false,
 colorlinks=true,% Set to false to disable coloring links
 citecolor=magenta,% The color of citations
-linkcolor=red,% The color of references to document elements (sections, figures, etc)
+linkcolor=black,% The color of references to document elements (sections, figures, etc)
 urlcolor=mdtRed,% The color of hyperlinks (URLs)
 pdfstartview={FitV},
 unicode,
