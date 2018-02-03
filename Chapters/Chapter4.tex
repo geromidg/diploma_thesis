@@ -4,17 +4,97 @@
 
 \section{Scope of Experiments}
 
+Mention why mapping experiments are out of the scope\\
+Explain briefly the purpose of the following experiments\\
+Explain the type of the experiments
+
+\begin{itemize}
+    \item Purpose: validate the algorithm and its robustness in various terrains and configurations
+    \item Type: SIL tests (precollected data)
+\end{itemize}
+
 \subsection{Environment}
 
+Explain the environment of the collected data (location, traversed paths etc.)\\
+Add figures showing the said environment/traverses
+
 \subsection{Metrics}
+
+Mention the metrics used
+
+\begin{itemize}
+    \item MSE of pose graph
+    \item mean variance of pose graph,
+    \item (execution times)
+    \item etc.
+\end{itemize}
 
 \section{Experiments on Pose Estimation}
 
 \subsection{Relative Localization Results}
 
+Explain what the experiment is (test the accuracy of the particle filter)\\
+Explain what is the expected accuracy of the estimation (1 cell size of local map)
+
+\bigskip
+\noindent
+Add bird's eye view of XY plot comparing:
+\begin{itemize}
+    \item ground truth 2D position
+    \item (Odometry)
+    \item PF estimate
+\end{itemize}
+
+\noindent
+Add plot showing the error vs the number of particles used\\
+Add plot showing the mean variance of the estimate vs the number of particles used\\
+Add table showing the execution time vs the numner of particles used\\
+Add plot showing the error vs the resampling frequency
+
+\bigskip
+\noindent
+Discuss the above results and what are the advantages/drawbacks while tuning each parameter
+
 \section{Experiments on Global Map Matching}
 
 \subsection{Absolute Localization Results}
 
+Explain what the experiment is (test the drift correction on long range traverses)\\
+Explain what is the expected accuracy of the correction (1 cell size of global map)
+
+\bigskip
+\noindent
+Add bird's eye view of XY plot comparing:
+\begin{itemize}
+    \item ground truth 2D position
+    \item (Odometry)
+    \item PF estimate without global correction
+    \item PF estimate with global correction
+\end{itemize}
+
+\bigskip
+\noindent
+Repeat test in environment with different distribution of features\\
+(Repeat test in environment without features to show the limitation of the approach)
+
+\bigskip
+\noindent
+Add table with the matching accuracy of the different experiments
+
+\bigskip
+\noindent
+Discuss the threshold value that should be chosen on such environments
+
 \subsection{Map Resolution Viability}
+
+Explain what the experiment is (test under what resolutions can we expect a drift correction)
+
+\bigskip
+\noindent
+Add figure showing local \& global maps with different resolution\\
+Add table comparing global vs local map resolutions using the correction error (actual offset - matched location)
+
+\bigskip
+\noindent
+Discuss the global and local map resolution of the current Mars missions and how these will change in the future (e.g. NASA is planning to have 0.25m orbiter map resolution by 2020)
 

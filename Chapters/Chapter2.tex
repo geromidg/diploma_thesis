@@ -4,37 +4,275 @@
 
 \section{Algorithm Overview}
 
+Explain the interface (inputs/output) with a simple diagram\\
+Explain the high-level design with a diagram showing the submodules
+
 \section{Data Registration}
+
+Explain what is the purpose of this step\\
+Explain the structure of the map and its properties\\
+Explain the reference frame of the map with a figure
+
+\begin{itemize}
+    \item Purpose: to register new sensor data in the local map
+    \item Map Structure: 4 layers (height gaussian + translation variances)
+    \item Map Properties: resolution, length, min/max elevation, 2D position
+\end{itemize}
 
 \subsection{Point Cloud Processing}
 
+Explain the processing steps of the input point cloud and why they are needed
+
+\begin{enumerate}
+    \item Downsample with voxel grid to have less data (precision trade-off)
+    \item Apply TF to bring the points from the sensor frame to the robot frame
+    \item Crop to map size to discard out-of-bounds information
+    \item Calculate height variance of each point using the sensor's model to create a 1D gaussian
+\end{enumerate}
+
+\noindent
+Add equations of the sensor model used to calculate the variances\\
+Add figure of point cloud pre and post processing
+
 \subsection{Map Prediction and Update}
+
+Explain prediction and update steps
+
+\begin{enumerate}
+    \item Prediction
+        \begin{enumerate}
+            \item Apply delta pose translation (x and y) from particle filter to map
+            \item Update translation variances of each cell using translation model
+            \item Keep height gaussian of each cell unchanged
+        \end{enumerate}
+    \item Update
+        \begin{enumerate}
+            \item Fuse each point of cloud to corresponding map cell by fusing gaussians
+            \item Keep translation variances (x and y) of each cell unchanged
+        \end{enumerate}
+\end{enumerate}
+
+\noindent
+Add gaussian fusion equations\\
+Add figures of input point cloud and its projection in the map
 
 \section{Data Fusion}
 
+Explain what is the purpose of this step
+
+\begin{itemize}
+    \item to get better sensor coverage by fusing multiple sensors
+    \item increase map quality using the translation uncertainties
+\end{itemize}
+
 \subsection{Sensor Fusion}
+
+Explain how sensor fusion is implemented
+
+\noindent
+Mention that calibration errors in sensors as well as inaccuracies in the sensor transformations can cause the sensor fusion to over-smooth obstacles/features causing false negatives
+
+\noindent
+Add figures of point clouds from different sensors and the resulting map from fusion
 
 \subsection{Neighborhood Fusion}
 
+Explain what is neighborhood fusion and the steps
+
+\bigskip
+\noindent
+For each cell of map:
+\begin{enumerate}
+    \item Compute a weight for every neighboor cell according to distance/variance
+    \item Update mean/variance of cell using a weight-based fusion rule
+\end{enumerate}
+
+\noindent
+Add equation for the weight calculation and the fusion rule\\
+If visible, add figures showing the variance layers in the map, and the result of the fusion (prior and posterior mean elevation layers)
+
 \section{Pose Estimation}
+
+Explain what is the purpose of this step
+Explain the particle filter used
+Explain how IMU measurements are fused to get the final pose
+
+\begin{itemize}
+    \item Purpose: to get a better estimate of the pose using the local map
+    \item Particle Filter: continuous, estimates 3 states (x, y, yaw) etc.
+\end{itemize}
+
+\noindent
+Add figure showing the particle distribution around the robot
 
 \subsection{Initialization}
 
+Explain the step
+
+\begin{enumerate}
+    \item Sample all particles at initial pose
+\end{enumerate}
+
+\noindent
+Add gaussian sampling equation
+
 \subsection{Prediction}
+
+Explain the steps
+
+\begin{enumerate}
+    \item Add gaussian noise to delta pose transformation from visual odometry
+    \item Apply transformation to each particle
+\end{enumerate}
+
+\noindent
+Add prediction equations (trivial)
 
 \subsection{Update}
 
+Explain the steps
+
+\begin{enumerate}
+    \item Crop local map to sensor's dimensions
+    \item Create point cloud from local map
+    \item Crop raw (input) cloud to map size
+    \item Downsample raw and map point clouds (for faster convergence of point cloud alignment)
+    \item For each particle
+        \begin{enumerate}
+            \item Create particle point cloud by transforming map point cloud to particle's pose
+            \item Measure particle and raw point cloud alignment using mean square error
+            \item Assign inverse error as particle's weight
+        \end{enumerate}
+\end{enumerate}
+
+\noindent
+Add equations of point cloud alignment method for the weight update
+
 \subsection{Resampling}
+
+Explain the technique used, the steps and the strategy
+
+\begin{itemize}
+    \item Technique: multinomial resampling
+    \item Steps
+        \begin{enumerate}
+            \item Normalize particle weights to form cummulative distribution
+            \item Sample uniformally each particle from cummulative distribution
+            \item Strategy: resample every X filter updates, depending on the robot's speed and the particle scattering (noise)
+        \end{enumerate}
+\end{itemize}
+
+\noindent
+Add equations for forming and sampling from the cummulative distribution
 
 \subsection{Estimation}
 
+Explain the steps
+
+\begin{enumerate}
+    \item Estimate pose from particle cloud:
+        \begin{enumerate}
+            \item Ignore particles with weights below a specific threshold
+            \item Pick top X particles
+            \item Calculate new estimate by performing a weighted average of particles
+            \item Calculate pose variance from the distribution of the particle cloud
+        \end{enumerate}
+    \item Fuse IMU/Odometry states:
+        \begin{enumerate}
+            \item Get roll and pitch measurements directly from the IMU
+            \item Get z estimation directly from visual odometry
+            \item Fuse IMU (laser gyroscope) yaw measurement with the PF's yaw estimate by means of 1D gaussian fusion
+        \end{enumerate}
+\end{enumerate}
+
+\noindent
+Add equations for calculating the mean and the variance values of the estimate\\
+Mention that the robot's absolute z estimate is not of importance and why is that
+
 \section{Pose Correction}
 
+Explain what is the purpose of this step\\
+Explain the execution strategy of this step\\
+Mention known limitations of this approach
+
+\begin{itemize}
+    \item Purpose: to minimize absolute localization drift using the global map
+    \item Strategy:
+        \begin{itemize}
+            \item Generic: map needs to have features \& robot must have covered certain amount of cells in the global map
+            \item Planetary specific: correct pose by the end of the day (for energy efficience reasons)
+        \end{itemize}
+    \item Limitations:
+        \begin{itemize}
+            \item When there are no features, the local to global map matching will fail
+            \item For safety purposes, the rover tries to generate a global path (using the global map) with as few features (i.e. rocks/craters) as possible
+        \end{itemize}
+\end{itemize}
+
 \subsection{Global to Local Map Matching}
+
+Explain the steps\\
+Explain why a template matching method is used instead of a feature-based one
+
+\begin{enumerate}
+    \item Downsample local map to match global map's resolution
+    \item Calculate gradient (magnitude of the edge) of local and global map's elevation values
+    \item Replace unknown cell values with zero (does not affect matching)
+    \item Warp the local map to specific yaw angles to find a yaw correction
+    \item For each yaw angle: match local map to global map using template matching with normalized correlation coefficients
+ Select or discard best match if score is above X (e.g. 95\%)
+    \item Convert the matched position from image coordinates to map coordinates
+    \item Add gaussian noise to delta transformation (x \& y) from matching
+    \item Apply transformation to each particle of particle filter
+\end{enumerate}
+
+\noindent
+Add figures of:
+\begin{itemize}
+    \item comparing Sobel edges with Scharr/Laplacian to justify the method
+    \item source global/local maps in the scene (3D)
+    \item source global/local maps in 2D
+    \item downsampled local map
+    \item gradients of global/local maps
+    \item result image of matching with rectangles indicating the match \& the ground truth match
+\end{itemize}
+
+\noindent
+Add equations of:
+\begin{itemize}
+    \item nearest neighbor method for downsampling the local map
+    \item gradient calculations (sobel kernel etc.)
+    \item template matching method (normalized correlation coefficients)
+    \item selection technique of best position from result image
+\end{itemize}
 
 \subsection{Criteria Checking}
 
 \subsubsection{Elevation Features Checking}
 
+Explain the steps and the threshold parameter selection
+
+\begin{enumerate}
+    \item Create slope map from local elevation map by calculating the elevation gradient
+    \item Remove values in slope map below a specific threshold
+    \item Add remaining values to get absolute slope of map
+    \item Compare to threshold
+\end{enumerate}
+
+\noindent
+Add equation for calculating the gradient and thresholding the map (image)\\
+Add figures of final slope maps that succeed/fail the criterion
+
 \subsubsection{Traversed Distance Checking}
+
+Explain the step and the threshold parameter selection
+
+\begin{enumerate}
+    \item Calculate traversed distance since last pose correction step
+    \item Compare to threshold
+\end{enumerate}
+
+\noindent
+Add equation for the distance calculation (very trivial)\\
+Add figures of robot traverses that succeed/fail the criterion
 

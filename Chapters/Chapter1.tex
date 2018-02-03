@@ -4,19 +4,81 @@
 
 \section{Motivation}
 
+Mention the scope, its state, the current issues and what is needed to
+solve them
+
+\begin{itemize}
+    \item Scope: planetary exploration (for scientific purposes)
+    \item State: past and current missions, their purpose and outcome/state
+    \item Issues: no constant communication, manual command sequence, unsafe/upredictable conditions
+    \item Needed: real-time and low-supervision system/platform
+\end{itemize}
+
 \section{Problem Statement}
+
+Mention the environment and the robot's equipment and purpose\\
+Mention that the problem is given X inputs to calculate Y outputs
+
+\begin{itemize}
+    \item Environment: extreme planetary terrains with anomalies (rocks and craters) and high elevation variance
+    \item Equipment: mechanical and sensor configuration
+    \item Purpose: autonomous (low-supervision) navigation
+    \item Inputs: odometry pose, sensor inputs, imu, global map
+    \item Outputs: corrected pose, local elevation map
+\end{itemize}
 
 \subsection{Presumptions}
 
+Explain what presumptions are made to the problem
+
+\begin{itemize}
+    \item Initial global position is known
+    \item Environment is static (not true for autonomous driving applications of algorithm)
+    \item Environment is unknown (no high resolution a priori maps) (not true for autonomous driving applications of algorithm)
+    \item Terrain is single layered (no bridges etc.)
+\end{itemize}
+
 \section{Literature Review}
+
+\subsection{SLAM}
+
+\begin{itemize}
+    \item  What is SLAM
+        \begin{itemize}
+            \item typical explanation in literature
+            \item categories
+        \end{itemize}
+    \item How is SLAM implemented
+        \begin{itemize}
+            \item volumetric/feature based approaches
+            \item grid-based fast slam
+            \item etc. etc. etc.
+        \end{itemize}
+\end{itemize}
 
 \subsection{Planetary Absolute Localization}
 
-\subsection{SLAM}
+Mention how is absolute localization achieved in planetary applications
+
+\begin{itemize}
+    \item Feature based approaches
+    \item Skyline based approaches
+    \item map based approaches
+\end{itemize}
 
 \section{Thesis Objectives and Organization}
 
 \subsection{Research Objectives}
 
+Mention what are the main objectives in terms of research
+
+\begin{itemize}
+    \item Develop a novel technique for minimizing drift in global localization with global map matching and an execution strategy (criteria)
+    \item Determine under what circumstances (i.e. resolution, local and global) can the orbital imagery be useful for SLAM
+    \item Examine and quantify the gains (better localization, by providing a navigable map with the resolution and dense distribution restrictions that come with it) and loses (processing overhead)
+\end{itemize}
+
 \subsection{Organization}
+
+Explain how this thesis is structured
 

@@ -3,9 +3,44 @@
 
 \section{Thesis Summary}
 
+Mention briefly what was discussed in this thesis and what the experiments proved
+
 \section{Contributions}
+
+Mention the research and the development contribution of this thesis
+
+\begin{itemize}
+    \item Research contributions (same as objectives of Introduction)
+    \item Development contributions (system features):
+        \begin{itemize}
+            \item Suitable for rough terrain navigation by utilizing 2.5D (elevation) maps
+            \item Global pose correction using map matching of local (robot-centric) and global (orbiter) elevation maps
+            \item Sensor-agnostic data registration using point clouds (support for lidar, stereo camera, ToF camera etc.)
+            \item Automatic sensor fusion when multiple inputs are provided (without prior configuration)
+            \item Adaptive design to fit the needs of different robots and applications
+        \end{itemize}
+\end{itemize}
 
 \section{Directions for Future Extensions}
 
+Mention future work and possible extensions to the algorithm
+
+\begin{itemize}
+    \item Use a discretized particle filter to gain advantage of the grid nature of the map
+    \item Use global map for complete (all initial cells) or partial (new unknown cells at the map's edge) of the local map
+    \item Use the motion model in addition to using the particle cloud distribution to determine the estimated pose's uncertainty
+    \item Use a method (e.g. SOR) to minimize outliers in input point cloud
+    \item Apply a threshold to points in projected point cloud that fall in the same map cell
+    \item Implement a strategy for selecting a match in template matching when matches with similar score are a. close to each other b. far from each other
+\end{itemize}
+
 \section{Applications}
+
+Talk about other possible applications except for the planetary one
+
+\begin{itemize}
+    \item Autonomous driving vehicles in urban environment using a priori 3D reconstructed maps (i.e. Google Maps) - although GPS data helps in avoiding the drift of dead reckoning, global map can still be used for local map initialization
+    \item Autonomous driving in rough non-urban areas were no predefined paths exists and GPS usage is limited
+    \item Lunar teleoperated robot with SLAM for augmenting the operator's perception - processing is done on the station (i.e. ISS) since stereo images are sent anyway
+\end{itemize}
 
