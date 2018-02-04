@@ -1,11 +1,52 @@
 \label{Chapter2}
 
-\chapter{Algorithm Design}
+\chapter{System Architecture}
 
-\section{Algorithm Overview}
+\section{System Overview}
 
-Explain the interface (inputs/output) with a simple diagram\\
-Explain the high-level design with a diagram showing the submodules
+In order for planetary robots to navigate autonomously in extreme and
+uncertain conditions where no GPS information is available,
+they need to perceive their surroundings with high precision and
+maintain this precision over time.
+A way of compensating for the lack of real-time GPS data, is to use
+an \textit{a priori} global map that contains 3D information about the
+environment the robot is trying to navigate into.
+This map can be reconstructed using imagery taken from an orbiter and
+has a notably lower resolution compared to the robot's sensory data.
+To take advantage of this existing information, we have developed a system
+which is based around two layers of data processing.
+
+In the first tier, the main objective is to capture the 3D structure of
+the environment using odometry, point cloud and IMU data from the
+robot's sensors.
+This is mainly achieved by adopting SLAM techniques to construct
+a local map and estimate the robot's current pose w.r.t. its initial pose.
+The latter, also called relative localization, is subject to drift
+in long-range traverses since all the input information is coming
+directly from the robot itself.
+
+In the second tier, the objective is to achieve absolute localization by
+eliminating the accummulated position error of the previous stage.
+This is done by utilizing a matching technique to find the position of the
+robot's local map inside a global map.
+
+The separation of the system to two layers comes from the need to process the
+data in separate moments, depending on the conditions of the environment as
+well as on the robot's processing capabilities.
+In Figure \ref{fig:HLD}, the high-level design diagram of the system shows
+the 4 submodules that comprise the entire system.
+Their functionality will be explained in the following sections of this
+chapter.
+
+\begin{figure}[th]
+    \centering
+    \includegraphics[scale=0.4]{Figures/high_level_design_diagram}
+    \decoRule
+    \caption[High Level Design Diagram]{
+        The high-level design diagram showing the submodules that comprise
+        the system as well as the data flow.}
+    \label{fig:HLD}
+\end{figure}
 
 \section{Data Registration}
 
