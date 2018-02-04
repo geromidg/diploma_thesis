@@ -49,6 +49,10 @@ consistentlayout, % Uncomment to change the layout of the declaration, abstract 
 
 \usepackage[autostyle=true]{csquotes} % Required to generate language-dependent quotes in the bibliography
 
+\usepackage[]{algorithm}
+\usepackage[noend]{algpseudocode}
+\newcommand*\Let[2]{\State #1 $\gets$ #2}
+
 %----------------------------------------------------------------------------------------
 %	MARGIN SETTINGS
 %----------------------------------------------------------------------------------------
@@ -202,6 +206,8 @@ Write abstract here...
 \listoffigures % Prints the list of figures
 
 \listoftables % Prints the list of tables
+
+\listofalgorithms % Print the list of algorithms
 
 %----------------------------------------------------------------------------------------
 %	ABBREVIATIONS
