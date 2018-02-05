@@ -50,17 +50,52 @@ chapter.
 
 \section{Data Registration}
 
-Explain what is the purpose of this step\\
-Explain the structure of the map and its properties\\
-Explain the reference frame of the map with a figure
+An integral aspect of a robotic system, is the mapping process.
+The map is the model of the environment and can represent information about
+it in either two or three dimensions. In addition, the information a map
+represents can be organized either in a grid-based manner (volumetric
+map) or in the form of landmarks (feature-based map). Volumetric maps provide
+a more detailed and precise model of the environment compared to feature-based
+maps and are, therefore, the better choice for robots that aim to solve
+navigation tasks. Moreover, autonomous robots that need to navigate in
+non-flat surfaces, require a 3D model in order to safely avoid the terrain's
+obstacles. Robotic applications with this requirement include outdoor,
+underwater, airborne or planetary missions.
 
-\begin{itemize}
-    \item Purpose: to register new sensor data in the local map
-    \item Map Structure: 4 layers (height gaussian + translation variances)
-    \item Map Properties: resolution, length, min/max elevation, 2D position
-\end{itemize}
+% TODO(ref): mapping and classification
 
-\subsection{Point Cloud Processing}
+As we have already mentioned, planetary rovers have an important constraint
+in on-board computational power. This limitation deems the use of pure 3D
+maps inappropriate. To overcome this problem, we can represent the
+environment with a 2.5D map, known as elevation map. An elevation map
+is essentially a 2D grid-map composed of cells that hold the value of
+the terrain's elevation. It is important to note that this mapping method
+does not model completely the 3D environment, but can provide a
+sufficient approximation even for the most demanding applications.
+
+% TODO(ref): elevation map
+
+To make use of this mapping technique, a robot must be equipped with a
+sensor that is capable of providing measurements in the 3D space.
+Such measurements are usually stored in a structure called point cloud -
+a set of points $P$ that contain information about their position in
+space $\left(x,y,z\right)$. A point cloud can be constructed from
+sensors that provide depth information, with the most popular being stereo
+cameras, time-of-flight (ToF) cameras and LiDARs.
+
+% TODO(ref): point cloud
+
+In this section, the functionality of the Data Registration module will be
+explained. Its main purpose is to preprocess the input sensor data (point
+cloud) and register it to create an elevation map or update an existing one.
+
+\subsection{Point Cloud Preprocessing}
+
+The importance of preprocessing a point cloud before registering its data
+in a map, comes from the fact that point clouds contain large amount of points
+and hence process them is a time-consuming task. Additionally, the
+points represented in the cloud may be referenced in a different frame
+(usually the sensor's frame) than the frame of the map.
 
 Explain the processing steps of the input point cloud and why they are needed
 
@@ -75,7 +110,18 @@ Explain the processing steps of the input point cloud and why they are needed
 Add equations of the sensor model used to calculate the variances\\
 Add figure of point cloud pre and post processing
 
-\subsection{Map Prediction and Update}
+\subsection{Registration}
+
+\subsubsection{Structure of Elevation Map}
+
+Explain the structure of the map and its properties\\
+Explain the reference frame of the map with a figure
+
+robot-centric
+Map Structure: 4 layers (height gaussian + translation variances)
+Map Properties: resolution, length, min/max elevation, 2D position
+
+\subsubsection{Map Prediction and Update}
 
 Explain prediction and update steps
 
