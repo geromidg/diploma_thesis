@@ -52,26 +52,30 @@ chapter.
 
 An integral aspect of a robotic system, is the mapping process.
 The map is the model of the environment and can represent information about
-it in either two or three dimensions. In addition, the information a map
-represents can be organized either in a grid-based manner (volumetric
-map) or in the form of landmarks (feature-based map). Volumetric maps provide
-a more detailed and precise model of the environment compared to feature-based
-maps and are, therefore, the better choice for robots that aim to solve
-navigation tasks. Moreover, autonomous robots that need to navigate in
-non-flat surfaces, require a 3D model in order to safely avoid the terrain's
-obstacles. Robotic applications with this requirement include outdoor,
-underwater, airborne or planetary missions.
+it in either two or three dimensions.
+In addition, the information a map represents can be organized either in
+a grid-based manner (volumetric map) or in the form of landmarks
+(feature-based map).
+Volumetric maps provide a more detailed and precise model of the environment
+compared to feature-based maps and are, therefore, the better choice for
+robots that aim to solve navigation tasks.
+Moreover, autonomous robots that need to navigate in non-flat surfaces,
+require a 3D model in order to safely avoid the terrain's obstacles.
+Robotic applications with this requirement include outdoor, underwater,
+airborne or planetary missions.
 
 % TODO(ref): mapping and classification
 
 As we have already mentioned, planetary rovers have an important constraint
-in on-board computational power. This limitation deems the use of pure 3D
-maps inappropriate. To overcome this problem, we can represent the
-environment with a 2.5D map, known as elevation map. An elevation map
-is essentially a 2D grid-map composed of cells that hold the value of
-the terrain's elevation. It is important to note that this mapping method
-does not model completely the 3D environment, but can provide a
-sufficient approximation even for the most demanding applications.
+in on-board computational power.
+This limitation deems the use of pure 3D maps inappropriate.
+To overcome this problem, we can represent the environment with a 2.5D map,
+known as elevation map.
+An elevation map is essentially a 2D grid-map composed of cells that hold
+the value of the terrain's elevation.
+It is important to note that this mapping method does not model completely
+the 3D environment, but can provide a sufficient approximation even for
+the most demanding applications.
 
 % TODO(ref): elevation map
 
@@ -79,106 +83,309 @@ To make use of this mapping technique, a robot must be equipped with a
 sensor that is capable of providing measurements in the 3D space.
 Such measurements are usually stored in a structure called point cloud -
 a set of points $P$ that contain information about their position in
-space $\left(x,y,z\right)$. A point cloud can be constructed from
-sensors that provide depth information, with the most popular being stereo
-cameras, time-of-flight (ToF) cameras and LiDARs.
+space $(x,y,z)$.
+A point cloud can be constructed from sensors that provide depth information,
+with the most popular being stereo cameras, time-of-flight (ToF) cameras
+and LiDARs.
 
 % TODO(ref): point cloud
 
 In this section, the functionality of the Data Registration module will be
-explained. Its main purpose is to preprocess the input sensor data (point
-cloud) and register it to create an elevation map or update an existing one.
+explained.
+Its main purpose is to preprocess the input sensor data (point cloud)
+and register it to create an elevation map or update an existing one.
 
-\subsection{Point Cloud Preprocessing}
+\subsection{Point Cloud Preprocessing} \label{point_cloud_processing}
 
 The importance of preprocessing a point cloud before registering its data
 in a map, comes from the fact that point clouds contain large amount of points
-and hence process them is a time-consuming task. Additionally, the
-points represented in the cloud may be referenced in a different frame
-(usually the sensor's frame) than the frame of the map.
+and hence process them is a time-consuming task.
+Additionally, the points represented in the cloud may be referenced in a
+different frame (usually the sensor's frame) than the frame of the map.
 
-Explain the processing steps of the input point cloud and why they are needed
+For this purpose, we implemented a point cloud preprocessing submodule,
+that consists of the following four steps:
 
 \begin{enumerate}
-    \item Downsample with voxel grid to have less data (precision trade-off)
-    \item Apply TF to bring the points from the sensor frame to the robot frame
-    \item Crop to map size to discard out-of-bounds information
-    \item Calculate height variance of each point using the sensor's model to create a 1D gaussian
+    \item \textbf{Voxelization}:
+        In this step, we reduce the volume of the point cloud by downsampling
+        it using a discrete 3D grid.
+        Each cell of the grid, called \textit{voxel}, is mapped to $\{0,1\}$
+        and it therefore represents the existence or absence of an obstacle
+        in that position.
+        This method is called \textit{voxelization} and results in a more
+        sparse cloud of 3D points.
+        % However, the larger the voxels are, the less precise the
+        % representation of the space becomes.
+
+        % TODO: Add equation for voxelization
+        % TODO(ref): voxelization
+
+    \item \textbf{Transformation}:
+        A point $P$ sampled from the sensor is in the sensor's reference frame
+        $S$ and need to be transformed in the map's frame $M$ in order to be
+        registered.
+        This is be achieved by
+        \begin{equation}
+            \mathbf{t}_{MP} =
+                \mathbf{R}_{SM} \mathbf{t}_{SP} -
+                \mathbf{t}_{SM}
+        \end{equation}
+        where
+        $\mathbf{t}_{MP}$ is the position of $P$ in the map frame,
+        $\mathbf{t}_{SP}$ is the position of $P$ in the sensor frame,
+        $\mathbf{R}_{SM}$ is the rotation between the sensor frame and the
+        map frame and
+        $\mathbf{t}_{SM}$ is the translation between them.
+
+    \item \textbf{Cropping}:
+        Since a point cloud can span a wide area in space depending on the
+        sensor's field of view and orientation, we can further reduce the
+        volume of the cloud by discarding (cropping) points that fall out
+        of the map.
+        This is done by defining a box in space and removing
+        from the point set all the points that are not inside it.
+        In our case, we define the minimum and maximum cutoff points that
+        represent the diagonal of the crop box as
+        \begin{equation}
+        \begin{aligned}
+            &min\_cutoff\_point =
+                \left( \quad
+                    - \frac{l_x}{2} - t_x, \quad
+                    - \frac{l_y}{2} - t_y, \quad
+                    z_{min} \quad
+                \right) \\
+            &max\_cutoff\_point =
+                \left( \quad
+                    \frac{l_x}{2} + t_x, \quad
+                    \frac{l_y}{2} + t_y, \quad
+                    z_{max} \quad
+                \right)
+        \end{aligned}
+        \end{equation}
+        where
+        $l_x$ and $l_y$ are the lengths of the map in meters in the
+        x and y axis,
+        $t_x$ and $t_y$ are the positions of the map in meters in the
+        x and y axis and
+        $z_{min}$ and $z_{max}$ are the minimum and maximum elevation
+        of the map.
+
+    \item \textbf{Uncertainty calculation}:
+        In this last step, we use the sensor's model to calculate the variance
+        of each point in the point cloud, $\sigma^2_z$.
+        As a result, each point will contain in addition to a $x$ and $y$
+        position, a one-dimensional Gaussian distribution for the height.
+        This calculation is different for every sensor, since it depends
+        on the sensor's characteristic.
+        For a stereo camera, we approximate the variance as
+        \begin{equation}
+            \sigma^2_z = \dots
+        \end{equation}
 \end{enumerate}
 
-\noindent
-Add equations of the sensor model used to calculate the variances\\
-Add figure of point cloud pre and post processing
+% TODO: Add figure of point cloud pre and post processing
 
 \subsection{Registration}
 
-\subsubsection{Structure of Elevation Map}
+\subsubsection{Structure of Elevation Map} \label{map_structure}
 
-Explain the structure of the map and its properties\\
-Explain the reference frame of the map with a figure
+The elevation map, also referred to as \textit{local map} or simply
+\textit{map}, is a robot-centric grid-based map.
+This means that it is centered in the robot's position in the
+global reference frame.
+When the robot moves, previous cells that now fall out of the map are
+reset and values that belong to the new explored area take their place.
 
-robot-centric
-Map Structure: 4 layers (height gaussian + translation variances)
-Map Properties: resolution, length, min/max elevation, 2D position
+The map models the elevation of the environment as well as the uncertainty
+of it.
+As a result, in every position of the 2D grid, the elevation is
+represented by a one-dimensional Gaussian distribution.
+This means that the the map consists of two layers
 
-\subsubsection{Map Prediction and Update}
+\begin{itemize}
+    \item the layer of \textit{mean} elevation $(\mu_z)$ and
+    \item the layer of elevation \textit{variance} $(\sigma^2_z)$
+\end{itemize}
+% TODO: Add the two translation variance layers
 
-Explain prediction and update steps
+Apart from its structure, a map is also characterized by a few other
+properties.
+The most important are
 
-\begin{enumerate}
-    \item Prediction
+\begin{itemize}
+    \item the \textit{resolution}, which is the dimension of a cell in meters,
+    \item the \textit{length}, which is the length of the map in meters,
+    \item the \textit{minimum} and \textit{maximum} elevation values that
+        the map can hold,
+    \item the 2D \textit{position} of the map in the global reference frame and
+    \item the \textit{orientation} of the map in the global reference frame
+\end{itemize}
+
+Regarding the last property, it is worth mentioning that the orientation
+of the map is fixed w.r.t. to the global frame.
+This decision was made in order to reduce the complexity when performing
+a prediction of the map (see next section).
+
+\subsubsection{Map Prediction and Update} \label{map_prediction_and_update}
+
+Even though the map prediction and update steps are grouped in the
+same submodule, they implement two separate functionalities.
+The map prediction is triggered when a new odometry pose is received and
+processed by the Pose Estimation module (Section \ref{pose_estimation}).
+The map update is triggered as soon as a new point cloud arrives from
+the sensor.
+\begin{itemize}[listparindent=1.5em]
+    \item \textbf{Prediction} \\
+        This step is responsible for moving the map when the robot assumes
+        a new position.
+        This is essentially a simple 2D transformation of the map's position
+        in the $x$ and $y$ axes.
+        The robot's orientation is not taken into account, since as we said
+        earlier (Section \ref{map_structure}), the orientation of the map
+        about the $z$ axis is fixed.
+        To perform the prediction, we simply
+
         \begin{enumerate}
-            \item Apply delta pose translation (x and y) from particle filter to map
-            \item Update translation variances of each cell using translation model
-            \item Keep height gaussian of each cell unchanged
+            \item apply the delta translation $(t_x,t_y)$ of the
+                new estimated pose to map and
+            \item keep the height Gaussian $(\mu_z,\sigma^2_z)$ of
+                each cell unchanged
         \end{enumerate}
-    \item Update
-        \begin{enumerate}
-            \item Fuse each point of cloud to corresponding map cell by fusing gaussians
-            \item Keep translation variances (x and y) of each cell unchanged
-        \end{enumerate}
-\end{enumerate}
 
-\noindent
-Add gaussian fusion equations\\
-Add figures of input point cloud and its projection in the map
+        When a translation is applied to the map, cells that fall out of the
+        map have their values reset and elevation values of the new explored
+        area take their place instead.
+        To avoid unnecessary data copying in memory, the data storage can be
+        implemented as a two-dimensional circular buffer.
+
+    \item \label{map_update} \textbf{Update} \\
+        This is the core step of the Data Registration module, since this
+        step implements the registration of the input point cloud into the map.
+        The algorithm of the point cloud projection is shown in Algorithm
+        \ref{alg:map_update}.
+
+        It uses a probabilistic approach to take advantage of the
+        fact that both the point cloud (Section \ref{point_cloud_processing})
+        and the map (Section \ref{map_structure}) represent the elevation
+        as a one-dimensional Gaussian distribution.
+        The last operation of the algorithm (Operation \ref{op:fuse}) is the
+        actual fusion, and can be implemented with different methods.
+        A popular method is the one used in a Kalman filter, which given
+        two Gaussian distributions $N(\mu_1, \sigma^2_1)$ and
+        $N(\mu_2, \sigma^2_2)$, can be implemented as
+        % TODO(ref): kalman filter sensor fusion (see elevation mapping paper)
+
+        \begin{equation}
+            innovation = \mu_2 - \mu_1
+        \end{equation}
+        \begin{equation}
+            gain = \frac {\sigma^2_1} {\sigma^2_1 + \sigma^2_2}
+        \end{equation}
+        \begin{equation}
+            \mu_1 = \mu_1 + gain \cdot innovation
+        \end{equation}
+        \begin{equation}
+            \sigma^2_1 = \left( 1 - gain \right) \cdot \sigma^2_1
+        \end{equation}
+
+        \begin{algorithm}
+            \caption{Registration of point cloud to map}
+            \label{alg:map_update}
+            \begin{algorithmic}[1]
+                \State $map$: two-dimensional grid of $\{\mu_z, \sigma^2_z\}$
+                \State $point\_cloud$: set of $\{x, y, z\}$
+                \State $point\_cloud\_variances$: set of $\{\sigma^2_z\}$ \\
+
+                \For {every $point$ in the $point\_cloud$}
+                    \If {$point$ is outside of the $map$}
+                        \State \textbf{continue}
+                    \EndIf \\
+
+                    \Let {$point\_mean$} {$point[z]$}
+                    \Comment projection of the point
+                    \Let {$point\_variance$} {$point\_cloud\_variances
+                        [point\_index]$} \\
+
+                    \Let {$index$} {$find\_map\_index(point[x], point[y])$}
+                    \Comment corresponding cell in grid
+                    \Let {$cell\_mean$} {$map[mean][index]$}
+                    \Let {$cell\_variance$} {$map[variance][index]$} \\
+
+                    \If {$cell\_mean$ or $cell\_variance$ is not initialized}
+                        \Let {$cell\_mean$} {$point\_mean$}
+                        \Let {$cell\_variance$} {$point\_variance$}
+                    \Else
+                        \State $fuse(cell\_mean, cell\_variance,
+                            point\_mean, point\_variance)$ \label{op:fuse}
+                    \EndIf \\
+
+                    \Let {$map[mean][index]$} {$cell\_mean$}
+                    \Let {$map[variance][index]$} {$cell\_variance$}
+                \EndFor
+            \end{algorithmic}
+        \end{algorithm}
+\end{itemize}
+
+% TODO: add figures of input point cloud and its projection in the map
 
 \section{Data Fusion}
 
-Explain what is the purpose of this step
-
-\begin{itemize}
-    \item to get better sensor coverage by fusing multiple sensors
-    \item increase map quality using the translation uncertainties
-\end{itemize}
+The goal of this module is to fuse data from different sources and
+increase the overall quality of the map.
+This is achieved by taking advantage the already computed uncertainty
+estimates in the map and applying fusion techniques to improve the
+existing data.
+In particular, we developed two submodules to perform fusion in separate
+stages of the pipeline.
+These are explained in the following sections.
 
 \subsection{Sensor Fusion}
 
-Explain how sensor fusion is implemented
+Using sensor fusion we can exploit the multiple sensors equipped in
+a robot to increase the covered area in the map.
+In addition to increased coverage, fusing sensor data that are overlapping
+in the map can increase its quality.
 
-\noindent
-Mention that calibration errors in sensors as well as inaccuracies in the sensor transformations can cause the sensor fusion to over-smooth obstacles/features causing false negatives
+The way a point cloud is registered (fused) in the map, was already mentioned
+in a previous section (Section \ref{map_update}).
+Using this method we can combine information from different sensors, as long
+as the input data is in the form of a point cloud, by simply updating the map
+and taking advantage of the uncertainty estimates that are calculated
+in the preprocessing of the point cloud.
 
-\noindent
-Add figures of point clouds from different sensors and the resulting map from fusion
+% TODO: Add figures of point clouds from different sensors and the resulting map from fusion
 
-\subsection{Neighborhood Fusion}
+A drawback of this technique is that large calibration errors and inaccuracies
+in the transformations $(\mathbf{t}_{SM}$ and $\mathbf{R}_{SM})$ between a
+sensor and the map can have the opposite effect i.e. deteriorate the map
+quality.
+This is due to the fact that fusion can over-smooth obstacles
+since their correspondence in the map will be slightly different
+for each sensor.
+Errors like these can easily produce false negative obstacles and
+have a detrimental effect in the navigation of the robot.
 
-Explain what is neighborhood fusion and the steps
+% TODO: Add figure illustrating this point
 
-\bigskip
-\noindent
-For each cell of map:
-\begin{enumerate}
-    \item Compute a weight for every neighboor cell according to distance/variance
-    \item Update mean/variance of cell using a weight-based fusion rule
-\end{enumerate}
+% \subsection{Neighborhood Fusion}
 
-\noindent
-Add equation for the weight calculation and the fusion rule\\
-If visible, add figures showing the variance layers in the map, and the result of the fusion (prior and posterior mean elevation layers)
+% Explain what is neighborhood fusion and the steps
+    %\item increase map quality using the translation uncertainties
 
-\section{Pose Estimation}
+% \bigskip
+% \noindent
+% For each cell of map:
+% \begin{enumerate}
+%     \item Compute a weight for every neighboor cell according to distance/variance
+%     \item Update mean/variance of cell using a weight-based fusion rule
+% \end{enumerate}
+
+% \noindent
+% Add equation for the weight calculation and the fusion rule\\
+% If visible, add figures showing the variance layers in the map, and the result of the fusion (prior and posterior mean elevation layers)
+
+\section{Pose Estimation} \label{pose_estimation}
 
 Explain what is the purpose of this step
 Explain the particle filter used
