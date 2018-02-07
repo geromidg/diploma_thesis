@@ -16,27 +16,44 @@ has a notably lower resolution compared to the robot's sensory data.
 To take advantage of this existing information, we have developed a system
 which is based around two layers of data processing.
 
-In the first tier, the main objective is to capture the 3D structure of
-the environment using odometry, point cloud and IMU data from the
-robot's sensors.
-This is mainly achieved by adopting SLAM techniques to construct
-a local map and estimate the robot's current pose w.r.t. its initial pose.
-The latter, also called relative localization, is subject to drift
-in long-range traverses since all the input information is coming
-directly from the robot itself.
+In the first tier, the objective is to perceive the environment and
+capture its 3D structure in order to enable the robot to navigate in it.
+This is achieved by constructing a local map and estimating the robot's
+current pose (position and orientation) w.r.t. its initial pose,
+using sensory inputs and odometry data.
+This process is commonly known as
+\textit{Simultaneous Localization And Mapping} (SLAM) and can be expressed as
+\begin{equation}
+    p(x_{0:T} ,\ m_{1:T} \ | \ z_{1:T} ,\ u_{1:T})
+\end{equation}
+where
+$x$ are the estimated poses of the robot,
+$m$ is the constructed map of the environment,
+$z$ are the sensory inputs and
+$u$ are the robot's controls.
+To reduce the problem's dimensions, the following factorization is performed
+\begin{equation}
+    p(x_{0:T} ,\ m_{1:T} \ | \ z_{1:T} ,\ u_{1:T}) =
+    p(x_{0:T} \ | \ m_{1:T-1} ,\ z_{1:T} ,\ u_{1:T}) \
+    p(m_{1:T} \ | \ x_{0:T} ,\ z_{1:T})
+\end{equation}
+where
+the former belief represents the pose estimation problem, also called
+relative localization, and the latter belief represents the mapping problem.
 
 In the second tier, the objective is to achieve absolute localization by
-eliminating the accummulated position error of the previous stage.
-This is done by utilizing a matching technique to find the position of the
-robot's local map inside a global map.
+eliminating the accummulated drift which occurs in the previous stage.
+This drift is present in long-range scenarios and comes from the fact that
+all the input information is coming directly from the robot itself.
+To eliminate it, a matching technique is utilized in order to find the
+position of the robot's local map inside a global map.
 
 The separation of the system to two layers comes from the need to process the
 data in separate moments, depending on the conditions of the environment as
 well as on the robot's processing capabilities.
 In Figure \ref{fig:HLD}, the high-level design diagram of the system shows
-the 4 submodules that comprise the entire system.
-Their functionality will be explained in the following sections of this
-chapter.
+the 4 main modules that comprise the entire system.
+Their functionality is explained in the following sections of this chapter.
 
 \begin{figure}[th]
     \centering
@@ -150,16 +167,16 @@ that consists of the following four steps:
         \begin{equation}
         \begin{aligned}
             &min\_cutoff\_point =
-                \left( \quad
-                    - \frac{l_x}{2} - t_x, \quad
-                    - \frac{l_y}{2} - t_y, \quad
-                    z_{min} \quad
+                \left( \
+                    - \frac{l_x}{2} - t_x, \
+                    - \frac{l_y}{2} - t_y, \
+                    z_{min} \
                 \right) \\
             &max\_cutoff\_point =
-                \left( \quad
-                    \frac{l_x}{2} + t_x, \quad
-                    \frac{l_y}{2} + t_y, \quad
-                    z_{max} \quad
+                \left( \
+                    \frac{l_x}{2} + t_x, \
+                    \frac{l_y}{2} + t_y, \
+                    z_{max} \
                 \right)
         \end{aligned}
         \end{equation}
@@ -387,17 +404,64 @@ have a detrimental effect in the navigation of the robot.
 
 \section{Pose Estimation} \label{pose_estimation}
 
-Explain what is the purpose of this step
-Explain the particle filter used
-Explain how IMU measurements are fused to get the final pose
+The pose, or state, of a robot navigating in a 3D environment, consists of
+its position $(x, y, z)$ and its orientation $(roll, pitch, yaw)$ w.r.t.
+a global reference frame.
+Hence, the goal of pose estimation, also referred to as relative localization,
+is to accurately track the robot's pose in the environment.
+This is usually accomplished by either employing a probabilistic filter,
+e.g. a Kalman filter or a particle filter, or by utilizing methods such
+as scan matching.
+A filter's inputs are usually expressed in the form of position or velocity
+and can be extracted using odometry techniques.
+In comparison, the input of a scan matching method is by definition a
+scan, i.e. measurement, received by a sensor.
+% TODO(ref): filtering / scan matching
+For our case, we approached the localization problem by making use of a
+combination of scan matching and particle filtering techniques.
 
-\begin{itemize}
-    \item Purpose: to get a better estimate of the pose using the local map
-    \item Particle Filter: continuous, estimates 3 states (x, y, yaw) etc.
-\end{itemize}
+First, we assume the state of the problem to be
+\begin{equation}
+    \mathbf{x} =
+    {[x \quad y \quad z \quad roll \quad pitch \quad yaw]}^\intercal
+\end{equation}
+where $roll$, $pitch$ and $yaw$ are the rotations about the $x$, $y$ and $z$
+axes respectively.
+However, we cannot obtain accurate estimates for the $roll$ and $pitch$ states
+from odometry.
+To overcome this limitation, we use an \textit{inertial measurement unit} (IMU)
+sensor and receive these states directly from it, so the problem state becomes
+\begin{equation}
+    \mathbf{x} = {[x \quad y \quad z \quad yaw]}^\intercal
+\end{equation}
+By making the assumption that the $z$ estimation from odometry is accurate
+in an area near the robot, the state can be further simplified as
+\begin{equation}
+    \mathbf{x} = {[x \quad y \quad yaw]}^\intercal
+\end{equation}
+In the case where this assumption is false, the result will be a deformed
+map, since the elevation values of the map will be directly affected
+by the wrong $z$ estimate of the robot.
 
-\noindent
-Add figure showing the particle distribution around the robot
+To estimate the posterior of the robot state, a particle filter is employed,
+that samples particles in a continuous state space.
+Additionally, the uncertainty of each particle is modelled using
+a Gaussian distribution.
+
+where the
+the odometry inputs are used to predict the state of each particle and
+the sensory inputs, i.e. point clouds, are used for the weight update.
+
+Finally, $yaw$ measurements from the robot's IMU sensor are fused with the
+final estimate to provide more accurate measurements.
+
+% TODO: add a figure showing the particle distribution around the robot
+% TODO: add a figure showing the 3D pose estimation compared to ground truth
+
+An activity diagram illustrating the algorithm's steps is shown in Figure X.
+These steps are explained in detail in the following sections.
+
+% TODO: add pose estimation activity diagram
 
 \subsection{Initialization}
 
