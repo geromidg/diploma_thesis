@@ -2,7 +2,7 @@
 
 \chapter{System Architecture}
 
-\section{System Overview}
+\section{System Overview} \label{system_overview}
 
 In order for planetary robots to navigate autonomously in extreme and
 uncertain conditions where no GPS information is available,
@@ -68,6 +68,15 @@ Their functionality is explained in the following sections of this chapter.
 \section{Data Registration}
 
 An integral aspect of a robotic system, is the mapping process.
+In the previous chapter (Section \ref{system_overview}) this processed
+was expressed as
+\begin{equation}
+    p(m_{1:T} \ | \ x_{0:T} ,\ z_{1:T})
+\end{equation}
+where
+$m$ is the posterior map of the environment,
+$x$ are the estimated poses of the robot and
+$z$ are the sensory inputs.
 The map is the model of the environment and can represent information about
 it in either two or three dimensions.
 In addition, the information a map represents can be organized either in
@@ -252,7 +261,7 @@ The map prediction is triggered when a new odometry pose is received and
 processed by the Pose Estimation module (Section \ref{pose_estimation}).
 The map update is triggered as soon as a new point cloud arrives from
 the sensor.
-\begin{itemize}[listparindent=1.5em]
+\begin{itemize}
     \item \textbf{Prediction} \\
         This step is responsible for moving the map when the robot assumes
         a new position.
@@ -266,8 +275,8 @@ the sensor.
         \begin{enumerate}
             \item apply the delta translation $(t_x,t_y)$ of the
                 new estimated pose to map and
-            \item keep the height Gaussian $(\mu_z,\sigma^2_z)$ of
-                each cell unchanged
+            \item keep the height Gaussian $\mathcal{N}(\mu_z, \ \sigma^2_z)$
+                of each cell unchanged
         \end{enumerate}
 
         When a translation is applied to the map, cells that fall out of the
@@ -289,8 +298,8 @@ the sensor.
         The last operation of the algorithm (Operation \ref{op:fuse}) is the
         actual fusion, and can be implemented with different methods.
         A popular method is the one used in a Kalman filter, which given
-        two Gaussian distributions $N(\mu_1, \sigma^2_1)$ and
-        $N(\mu_2, \sigma^2_2)$, can be implemented as
+        two Gaussian distributions $\mathcal{N}(\mu_1, \ \sigma^2_1)$ and
+        $\mathcal{N}(\mu_2, \ \sigma^2_2)$, can be implemented as
         % TODO(ref): kalman filter sensor fusion (see elevation mapping paper)
 
         \begin{equation}
@@ -310,35 +319,39 @@ the sensor.
             \caption{Registration of point cloud to map}
             \label{alg:map_update}
             \begin{algorithmic}[1]
-                \State $map$: two-dimensional grid of $\{\mu_z, \sigma^2_z\}$
-                \State $point\_cloud$: set of $\{x, y, z\}$
-                \State $point\_cloud\_variances$: set of $\{\sigma^2_z\}$ \\
+                \State $M_\mu$: mean elevation layer of the map
+                \State $M_{\sigma^2}$: variance elevation layer of the map
+                \State $P$: point cloud - set of $\{x, y, z\}$
+                \State $V$: point cloud variances - set of $\{\sigma^2_z\}$ \\
 
-                \For {every $point$ in the $point\_cloud$}
-                    \If {$point$ is outside of the $map$}
+                \For {each $p$ in the $P$}
+                    \Comment iterate through all points
+                    \If {position of $p$ is outside of map}
                         \State \textbf{continue}
                     \EndIf \\
 
-                    \Let {$point\_mean$} {$point[z]$}
+                    \Let {$\mu_{point}$} {$p[z]$}
                     \Comment projection of the point
-                    \Let {$point\_variance$} {$point\_cloud\_variances
-                        [point\_index]$} \\
+                    \Let {$\sigma^2_{point}$} {$V[p]$} \\
 
-                    \Let {$index$} {$find\_map\_index(point[x], point[y])$}
-                    \Comment corresponding cell in grid
-                    \Let {$cell\_mean$} {$map[mean][index]$}
-                    \Let {$cell\_variance$} {$map[variance][index]$} \\
+                    \Let {$index$} {$find\_map\_index(p[x], p[y])$}
+                    \Comment corresponding cell in grid \\
 
-                    \If {$cell\_mean$ or $cell\_variance$ is not initialized}
-                        \Let {$cell\_mean$} {$point\_mean$}
-                        \Let {$cell\_variance$} {$point\_variance$}
+                    \Let {$\mu_{cell}$} {$M_\mu[index]$}
+                    \Let {$\sigma^2_{cell}$} {$M_{\sigma^2}[index]$} \\
+
+                    \If {$\mu_{cell}$ or $\sigma^2_{cell}$ is not initialized}
+                        \Let {$\mu_{cell}$} {$\mu_{point}$}
+                        \Let {$\sigma^2_{cell}$} {$\sigma^2_{point}$}
                     \Else
-                        \State $fuse(cell\_mean, cell\_variance,
-                            point\_mean, point\_variance)$ \label{op:fuse}
+                        \Let {$\mathcal{N}(\mu_{cell} ,\ \sigma^2_{cell})$}
+                            {$\mathcal{N}(\mu_{cell} ,\ \sigma^2_{cell}) \cdot
+                                \mathcal{N}(\mu_{point} ,\ \sigma^2_{point})$}
+                            \label{op:fuse}
                     \EndIf \\
 
-                    \Let {$map[mean][index]$} {$cell\_mean$}
-                    \Let {$map[variance][index]$} {$cell\_variance$}
+                    \Let {$M_\mu[index]$} {$\mu_{cell}$}
+                    \Let {$M_{\sigma^2}[index]$} {$\sigma^2_{cell}$}
                 \EndFor
             \end{algorithmic}
         \end{algorithm}
@@ -439,19 +452,27 @@ in an area near the robot, the state can be further simplified as
 \begin{equation}
     \mathbf{x} = {[x \quad y \quad yaw]}^\intercal
 \end{equation}
+which is also referred to as
+\begin{equation}
+    \mathbf{x} = {[x \quad y \quad \theta]}^\intercal
+\end{equation}
 In the case where this assumption is false, the result will be a deformed
 map, since the elevation values of the map will be directly affected
 by the wrong $z$ estimate of the robot.
 
-To estimate the posterior of the robot state, a particle filter is employed,
-that samples particles in a continuous state space.
+We employ a particle filter that samples particles in a continuous state space
+to estimate the posterior of the robot's state
+\begin{equation}
+    p(x_{0:T} \ | \ m_{1:T-1} ,\ z_{1:T} ,\ u_{1:T}) \
+\end{equation}
+where
+$m$ is the constructed map of the environment,
+$z$ are the sensory inputs and
+$u$ are the odometry inputs.
+This is done by using the odometry inputs to predict the state of each
+particle and the sensory inputs, i.e. point clouds, for the weight update.
 Additionally, the uncertainty of each particle is modelled using
 a Gaussian distribution.
-
-where the
-the odometry inputs are used to predict the state of each particle and
-the sensory inputs, i.e. point clouds, are used for the weight update.
-
 Finally, $yaw$ measurements from the robot's IMU sensor are fused with the
 final estimate to provide more accurate measurements.
 
@@ -465,172 +486,471 @@ These steps are explained in detail in the following sections.
 
 \subsection{Initialization}
 
-Explain the step
+This step is executed only during the initialization of the algorithm,
+or when the particle filter is reset and the objective is to sample
+each particle using a Gaussian distribution.
+The probability density function of the distribution
+$\mathcal{N}(\mu, \ \sigma^2)$ is
+\begin{equation}
+    f(x \ | \ \mu ,\ \sigma^2) =
+    \frac{1}{\sqrt{2\pi\sigma^2}} \
+    e^{ -\frac{(x-\mu)^2}{2\sigma^2} }
+\end{equation}
+where
+$\mu$ is the mean of the distribution,
+$\sigma$ is the standard deviation and
+$\sigma^2$ is the variance.
+Using this function, the state of each particle is sampled, as shown in
+Algorithm \ref{alg:pf_initialization}.
 
-\begin{enumerate}
-    \item Sample all particles at initial pose
-\end{enumerate}
+\begin{algorithm}
+    \caption{Initialization of particle filter}
+    \label{alg:pf_initialization}
+    \begin{algorithmic}[1]
+        \State $P$: set of particles with $\{\{x, y, \theta\}, weight\}$ \\
 
-\noindent
-Add gaussian sampling equation
+        \For {each $p$ in the $P$}
+            \State $x \sim \mathcal{N}(\mu_x, \ \sigma^2_x)$
+            \Comment sample the states from their distributions
+            \State $y \sim \mathcal{N}(\mu_y, \ \sigma^2_y)$
+            \State $\theta \sim \mathcal{N}(\mu_\theta, \ \sigma^2_\theta)$
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
 
-\subsection{Prediction}
+\subsection{Prediction} \label{pf_prediction}
 
-Explain the steps
-
-\begin{enumerate}
-    \item Add gaussian noise to delta pose transformation from visual odometry
-    \item Apply transformation to each particle
-\end{enumerate}
-
-\noindent
-Add prediction equations (trivial)
+When a new odometry input $u_t$ is received, the state of each particle
+$p_i$ is sampled using the prediction as the mean value of a Gaussian
+distribution as such
+\begin{equation}
+    x^i_t \sim \mathcal{N}(x^i_{t-1} + \Delta x_t ,\; \sigma^2_x)
+\end{equation}
+\begin{equation}
+    y^i_t \sim \mathcal{N}(y^i_{t-1} + \Delta y_t ,\; \sigma^2_y)
+\end{equation}
+\begin{equation}
+    \theta^i_t \sim
+    \mathcal{N}(\theta^i_{t-1} + \Delta \theta_t ,\; \sigma^2_\theta)
+\end{equation}
+where
+$x_i$, $y_i$ and $\theta_i$ represent the state of the particle,
+$\Delta x$, $\Delta y$ and $\Delta \theta$ are the delta inputs from odometry
+and $\sigma^2_x$, $\sigma^2_y$ and $\sigma^2_\theta$ are the variances of
+the states that define the Gaussian noise that will be added to the particle.
 
 \subsection{Update}
 
-Explain the steps
+When a new point cloud measurement $z_t$ is received, the weight of each
+particle $p_i$ is updated using scan matching.
+In particular, for every particle, the input point cloud is matched with
+a point cloud extracted from the robot's local map using
+an \text{Iterative Closest Point} (ICP) variant.
+% TODO(ref): ICP
 
-\begin{enumerate}
-    \item Crop local map to sensor's dimensions
-    \item Create point cloud from local map
-    \item Crop raw (input) cloud to map size
-    \item Downsample raw and map point clouds (for faster convergence of point cloud alignment)
-    \item For each particle
-        \begin{enumerate}
-            \item Create particle point cloud by transforming map point cloud to particle's pose
-            \item Measure particle and raw point cloud alignment using mean square error
-            \item Assign inverse error as particle's weight
-        \end{enumerate}
-\end{enumerate}
+In order to achieve a fast convergence of the ICP, we first preprocess
+the inputs as such:
+\begin{enumerate*}[label=(\roman*)]
+    \item crop the raw point cloud (sensor scan) to the local map's size
+    \item convert local map to a point cloud using the elevation values of
+        the grid map
+    \item downsample both point clouds using a voxel grid (in a similar way
+        as in Section \ref{point_cloud_processing}).
+\end{enumerate*}
 
-\noindent
-Add equations of point cloud alignment method for the weight update
+In addition, the point cloud extracted from the local map is transformed to
+each particle's state (pose) and as a result each particle holds a
+representation of the environment according to its hypothesis.
+Since the weight of each particle is proportional to the uncertainty
+of its hypothesis, it can be updated by measuring the degree of
+alignment between the raw point cloud and the particle's point cloud.
+
+One way to measure the alignment between a source point cloud
+$S = \{s_1, s_2, \dots, s_{N_s}\}$ and a reference point cloud
+$R = \{r_1, r_2, \dots, r_{N_r}\}$ is by computing the sum of the
+squared error
+\begin{equation}
+    e = \frac{1}{N_r} \sum_{i=1}^{N_r} || s_i - r_i ||^2
+\end{equation}
+where $s_i$ and $r_i$ are the points which correspond to each other.
+
+An easy method of performing this computation is to run one iteration of
+the ICP algorithm and using the output fitness score as the point cloud
+alignment error.
+Therefore, the weight $w_i$ of a particle $p_i$ is calculated as
+\begin{equation}
+    w_i = \frac{1}{icp\_fitness\_score}
+\end{equation}
 
 \subsection{Resampling}
 
-Explain the technique used, the steps and the strategy
+The act of resampling the set of particles of the filter is done
+in order to ensure that the particle population models the
+uncertainty of the problem as close as possible.
+Although there are several variants that can be exploited to solve the
+resampling problem depending on the situtation, we make use of a fairly
+common technique called multinomial resampling.
+% TODO(ref): resampling techniques
 
-\begin{itemize}
-    \item Technique: multinomial resampling
-    \item Steps
-        \begin{enumerate}
-            \item Normalize particle weights to form cummulative distribution
-            \item Sample uniformally each particle from cummulative distribution
-            \item Strategy: resample every X filter updates, depending on the robot's speed and the particle scattering (noise)
-        \end{enumerate}
-\end{itemize}
+Given a particle set of $N$ particles, a cumulative distribution is
+initially formed by normalizing the weight of each particle as
+\begin{equation}
+    w_i = \frac{w_i}{\sum\limits_{k=0}^N w_k}
+\end{equation}
+where $w_i$ is the weight of a particle $p_i$ from the particle set.
+From the cumulative distribution, $N$ new particles are sampled
+uniformly while maintaining the state of each particle.
+% TODO: add figure showing the classic wheel
 
-\noindent
-Add equations for forming and sampling from the cummulative distribution
+It is obvious that particles which were associated with a high
+weight in the previous population have a higher chance of being selected.
+Thus, a new population is created that possibly contains duplicate
+particles.
+These particles will be scattered again in the next iteration by
+adding Gaussian noise in the prediction step (Section \ref{pf_prediction}).
+
+An important aspect of resampling is the resampling strategy used,
+i.e. the moment that resampling is performed in the population.
+Depending on the parameters of the particle filter as well as on the
+states of the problem, different strategies yield different results.
+In our approach, we adopted a simple strategy that resamples every
+$K$ iterations of the algorithm.
+This parameter depends on the robot's controls as well as on the magnitude of
+the Gaussian noise added to each particle and can be configured
+accordingly for each application.
 
 \subsection{Estimation}
 
-Explain the steps
+The last step of the algorithm is to extract the final pose estimate from
+the particle filter. This is accomplished in two steps:
+\begin{enumerate*}[label=(\roman*)]
+    \item estimate pose from the particle cloud
+    \item fuse pose with measurements from an IMU sensor.
+\end{enumerate*}
 
-\begin{enumerate}
-    \item Estimate pose from particle cloud:
-        \begin{enumerate}
-            \item Ignore particles with weights below a specific threshold
-            \item Pick top X particles
-            \item Calculate new estimate by performing a weighted average of particles
-            \item Calculate pose variance from the distribution of the particle cloud
-        \end{enumerate}
-    \item Fuse IMU/Odometry states:
-        \begin{enumerate}
-            \item Get roll and pitch measurements directly from the IMU
-            \item Get z estimation directly from visual odometry
-            \item Fuse IMU (laser gyroscope) yaw measurement with the PF's yaw estimate by means of 1D gaussian fusion
-        \end{enumerate}
-\end{enumerate}
+In many applications of the particle filter, the first step is achieved
+by simply picking the best particle, i.e. the particle with the highest
+weight in the particle set.
+However, using this method, when the best particle is removed from the
+population during resampling, choosing the next best particle will cause the
+robot to "teleport" in the continuous space, hence deforming the constructed
+map.
+To overcome this issue, we have implemented a technique
+(Algorithm \ref{alg:pf_estimation}) that extracts the pose by thresholding
+particles with low weight and averaging the remaining.
 
-\noindent
-Add equations for calculating the mean and the variance values of the estimate\\
-Mention that the robot's absolute z estimate is not of importance and why is that
+\begin{algorithm}
+    \caption{Estimation of final pose from particle population}
+    \label{alg:pf_estimation}
+    \begin{algorithmic}[1]
+        \State $P$: set of particles
+        \State $p$: particle - set of $\{states, weight\}$ \\
+
+        \Let {$S$} {\{\ \}}
+        \Comment candidate particles
+        \For {each $p$ in $P$}
+            \If {$p[w]$ > $w_{threshold}$}
+                \Comment remove uncertain particles
+                \Let {$S$} {$S$ + p}
+            \EndIf
+        \EndFor \\
+
+        \State Sort $S$ by weight
+        \Let {$M$} {$S[1:k]$}
+        \Comment pick top k particles \\
+
+        \Let {$w_{sum}$} {$\sum^k_{i=1} w_i$}
+        \Let {$x$} {$\sum^k_{i=1} w_i x_i \; / \; w_{sum}$}
+        \Comment weighted average of each state
+        \Let {$y$} {$\sum^k_{i=1} w_i y_i \; / \; w_{sum}$}
+        \Let {$\theta$} {$\sum^k_{i=1} w_i \theta_i \; / \; w_{sum}$}
+    \end{algorithmic}
+\end{algorithm}
+
+Finally, to further improve the estimation, we fuse the $yaw$ measurement from
+the IMU sensor with the $yaw$ estimate from the particle filter.
+The fusion is done by means of one-dimensional Gaussian distributions,
+hence we need to associate a variance to each value.
+
+The IMU Gaussian is represented as $\mathcal{N}(\mu_{imu} ,\ \sigma^2_{imu})$
+where $\mu_{imu}$ is the measurement value from the sensor and
+$\sigma^2_{imu}$ is the variance which is a parameter that represents how
+reliable the sensor is.
+The second Gaussian is represented as
+$\mathcal{N}(\mu_{\theta} ,\ \sigma^2_{\theta})$,
+where $\mu_{\theta}$ is the $yaw$ estimate that was extracted in the
+previous step and $\sigma^2_{\theta}$ is the variance of the distribution.
+It can be calculated by applying the formula for a weighted standard
+deviation as
+\begin{equation}
+    \sigma_\theta = \sqrt{\frac
+    {\sum\limits^{N}_{i=1} w_i (\theta_i - \mu_\theta)^2}
+    {\sum\limits^{N}_{i=1} w_i}}
+\end{equation}
+where
+$N$ is the number of particles,
+$w_i$ is the weight of each particle and
+$\theta_i$ is the $yaw$ hypothesis of each particle.
+The fusion of the two distributions is performed in a similar fashion as
+in the Data Registration module (Section \ref{map_update}).
 
 \section{Pose Correction}
 
-Explain what is the purpose of this step\\
-Explain the execution strategy of this step\\
-Mention known limitations of this approach
+Although the robot's pose is constantly tracked using a particle filter in the
+Pose Estimation module (Section \ref{pose_estimation}), the approach
+is still based on dead-reckoning due to the fact that all the inputs
+of the process arrive from internal sensors.
+As a result, a localization error is accumulated in long-range traverses
+and the robot's pose in the global reference frame is unknown.
+In order to bound this error and achieve absolute (global) localization,
+we have developed an extra component in the system that eliminates
+the drift by matching the local map to an \textit{a priori} global one.
 
-\begin{itemize}
-    \item Purpose: to minimize absolute localization drift using the global map
-    \item Strategy:
-        \begin{itemize}
-            \item Generic: map needs to have features \& robot must have covered certain amount of cells in the global map
-            \item Planetary specific: correct pose by the end of the day (for energy efficience reasons)
-        \end{itemize}
-    \item Limitations:
-        \begin{itemize}
-            \item When there are no features, the local to global map matching will fail
-            \item For safety purposes, the rover tries to generate a global path (using the global map) with as few features (i.e. rocks/craters) as possible
-        \end{itemize}
-\end{itemize}
+The global map can be reconstructed using imagery taken from an
+orbiter (satellite), although its resolution cannot reach the level of
+the local one.
+Furthermore, in contast to the local map which is always centered around
+the robot, the global map is referenced in the global frame, i.e. the
+same coordinate system as the robot's pose.
+This enables us to match the two maps and apply the delta transformation
+to correct the drifted pose.
+
+% Explain the execution strategy of this step\\
+% Mention known limitations of this approach
+
+% Strategy:
+% \begin{itemize}
+    % \item Generic: map needs to have features \& robot must have covered certain amount of cells in the global map
+    % \item Planetary specific: correct pose by the end of the day (for energy efficience reasons)
+% \end{itemize}
+
+% Limitations:
+% \begin{itemize}
+    % \item When there are no features, the local to global map matching will fail
+    % \item For safety purposes, the rover tries to generate a global path (using the global map) with as few features (i.e. rocks/craters) as possible
+% \end{itemize}
 
 \subsection{Global to Local Map Matching}
 
-Explain the steps\\
-Explain why a template matching method is used instead of a feature-based one
+The matching of 2D images (frames) is a topic that has been extensively
+researched in the field of computer vision and several techniques have
+been developed for that purpose.
+Since grid-based 2D maps are essentially images, it is possible to
+apply these techniques to maps as well.
+The act of matching two images consists of either finding the absolute
+position of the first image inside the second one or finding a certain
+correspondece between the two.
 
-\begin{enumerate}
-    \item Downsample local map to match global map's resolution
-    \item Calculate gradient (magnitude of the edge) of local and global map's elevation values
-    \item Replace unknown cell values with zero (does not affect matching)
-    \item Warp the local map to specific yaw angles to find a yaw correction
-    \item For each yaw angle: match local map to global map using template matching with normalized correlation coefficients
- Select or discard best match if score is above X (e.g. 95\%)
-    \item Convert the matched position from image coordinates to map coordinates
-    \item Add gaussian noise to delta transformation (x \& y) from matching
-    \item Apply transformation to each particle of particle filter
-\end{enumerate}
+Popular approaches vary from simple and statistical-based ones such as
+comparing the histogram of the images to find similarities, to
+more complex and efficient ones such as template matching and feature
+matching. The former, template matching, is a method that convolves a search
+image (template) with the one being searched into (source) and is usually
+used to find a smaller image in a bigger one.
+The latter, feature matching, is based on the idea of extracting a feature
+set from each image and comparing the two sets in order to find
+correspondences among them.
+% TODO(ref): image matching techniques
 
-\noindent
-Add figures of:
+Although feature matching is usually the most efficient method,
+it can be yield suboptimal results in scenarios where features are
+almost indistinguishable and their extraction contains uncertainties.
+For this reason, we chose to base our matching approach on a
+template matching method and exploit the feature-sparse environment
+of our planetary application.
+
+The proposed algorithm consists of the following three steps:
+
 \begin{itemize}
-    \item comparing Sobel edges with Scharr/Laplacian to justify the method
-    \item source global/local maps in the scene (3D)
-    \item source global/local maps in 2D
-    \item downsampled local map
-    \item gradients of global/local maps
-    \item result image of matching with rectangles indicating the match \& the ground truth match
-\end{itemize}
+    \item \textbf{Preprocessing} \\
+        Template matching requires the two images to be of the same resolution.
+        Since, as we mentioned earlier, the global image (source image) has a
+        lower resolution than the local image (template image), it is necessary
+        to downsample the local one to match the resolution of the global.
+        To achieve this, we scale the template image with the local to global
+        resolution ratio using a nearest-neighbor interpolation method.
 
-\noindent
-Add equations of:
-\begin{itemize}
-    \item nearest neighbor method for downsampling the local map
-    \item gradient calculations (sobel kernel etc.)
-    \item template matching method (normalized correlation coefficients)
-    \item selection technique of best position from result image
+        % TODO: add figure of downsampled local map
+
+        As we discussed in the implementation of the Pose Estimation component
+        (Section \ref{pose_estimation}), the long-term drift of the $z$
+        estimation which is received directly from odometry, causes an
+        elevation offset in the local map.
+        To overcome this offset, it is possible to match the gradients
+        (first derivatives) of the two images instead of directly matching
+        the normal ones, by applying the Sobel operator in the two images.
+
+        The computation of the gradient of an image $I$, requires first the
+        computation of the gradients in the x and y axes by convolving $I$
+        with a Sobel odd-sized kernel. For a kernel size of
+        three, the kernel in the horizontal direction is
+        \begin{equation}
+            K_x =
+            \begin{bmatrix}
+                -1 & 0 & +1 \\
+                -2 & 0 & +2 \\
+                -1 & 0 & +1
+            \end{bmatrix}
+        \end{equation}
+        and in the vertical direction is
+        \begin{equation}
+            K_y =
+            \begin{bmatrix}
+                -1 & -2 & -1 \\
+                0 & 0 & 0 \\
+                +1 & +2 & +1
+            \end{bmatrix}
+        \end{equation}
+        Thus, the two gradients are computed as
+        \begin{equation}
+            G_x = K_x * I
+        \end{equation}
+        \begin{equation}
+            G_y = K_y * I
+        \end{equation}
+        and the final magnitude of the gradient is calculated by
+        combining both gradients:
+        \begin{equation}
+            G = \sqrt{G_x^2 + G_y^2}
+        \end{equation}
+
+        % TODO: add figures of gradient of tmeplate/source images
+
+        Finally, we replace unknown cell values, i.e. cells that do not
+        contain an elevation value, with zero since the matching
+        method we use cannot handle unknown values. It is also possible
+        to mask these values during matching. In any case, zero values
+        do not contribute to the outcome of the match as it is explained
+        in the next step.
+
+    \item \textbf{Matching} \\
+        A drawback of template matching compared to feature matching is that it
+        cannot match rotated images, and therefore it cannot find a
+        $yaw$ correction in the robot's global pose.
+        To overcome this limitation, we warp (rotate) the template image
+        in a discrete angle space, e.g. from \ang{-10} to \ang{10} with
+        a step of \ang{1}. As a result, we run template matching for every
+        individual angle (e.g. twenty times for the previous example) and
+        choose the $yaw$ correction angle that provides the best result.
+
+        Template matching works by sliding the template image $T$
+        pixel-by-pixel in the source image $I$ and comparing at each
+        location the two images using a metric (score).
+        Then for each location of $T$ over $I$, the score is stored in a
+        result matrix $R$.
+        Consequently, the location in $R$ where the score is highest,
+        is the location of the best match.
+
+        % TODO(ref): template matching
+
+        The metric used to compare the images, greatly influences the final
+        result. The most popular metrics used are:
+        \begin{enumerate}
+            \item the Sum of Square Difference (SDD), which is expressed as
+                \begin{equation}
+                    R(x, y) = \sum_{x', y'} (T(x', y') - I(x + x', y + y'))^2
+                \end{equation}
+                where $x'$ and $y'$ correspond to the pixel (location) of
+                a specific pass.
+            \item the Cross Correlation, which is expressed as
+                \begin{equation} \label{eq:tm_ccor}
+                    R(x, y) = \sum_{x', y'} (T(x', y') \cdot I(x + x', y + y'))
+                \end{equation}
+            \item the Correlation Coefficient, which is expressed as
+                \begin{equation}
+                    R(x, y) =
+                    \sum_{x', y'} (T'(x', y') \cdot I'(x + x', y + y'))
+                \end{equation}
+                where
+                \begin{equation}
+                    T'(x', y') = T(x', y') -
+                    \frac{\sum_{x'',y''}T(x'', y'')}{width \cdot height}
+                \end{equation}
+                \begin{equation}
+                    I'(x + x', y + y') = I(x + x', y + y') -
+                    \frac{\sum_{x'',y''}I(x + x'',y + y'')}{width \cdot height}
+                \end{equation}
+        \end{enumerate}
+
+        Since, the invalid cells of the template image have been converted
+        to zero, the last method cannot be used because these cells would
+        affect the result. After experimental evaluation of the first and
+        the second metrics, we came to the conclusion that the second
+        method (Equation \ref{eq:tm_ccor}) yields more optimal results
+        for our application.
+
+        In addition, it is practical to normalize the metric to produce a
+        metric that scales with the size and intensity of the template
+        and source images. The new metric becomes:
+        \begin{equation}
+            R(x, y) = \frac
+            {\sum_{x', y'} (T(x', y') \cdot I(x + x', y + y'))}
+            {\sqrt{
+            \sum_{x', y'} T(x', y')^2 \cdot \sum_{x', y'} I(x + x', y + y')^2}}
+        \end{equation}
+
+        Another advantage of the normalization of the metric, is that it
+        provides an output score in the fixed range $[0 \dots 1]$, with
+        1 being a perfect match. Using that, we can provide certain guarantees
+        to the matching by selecting the best match only when the score is
+        above a specific threshold (e.g. 95\%).
+
+        % TODO: add figures of:
+            % source global/local maps in the scene (3D)
+            % source global/local maps in 2D
+            % result image of matching with rectangles indicating
+            %   the match & the ground truth match
+
+    \item \textbf{Correction} \\
+        The last step consists of converting the position $(x, y)$ of the match
+        from image coordinates to map coordinates:
+        \begin{equation}
+            x_{map} = \floor*{\frac{h}{2}} - x_{image}
+        \end{equation}
+        \begin{equation}
+            y_{map} = \floor*{\frac{w}{2}} - y_{image}
+        \end{equation}
+        where $h$ and $w$ are the height and width of the template image
+        respectively.
+
+        Finally, we apply the correction $(x, y, \theta)$ to the particle
+        filter as a control input, i.e. all the particles are updated using
+        this delta transformation. Doing that, we ensure that Gaussian
+        noise will be added to each particle, as specified in Section
+        \ref{pf_prediction}.
 \end{itemize}
 
 \subsection{Criteria Checking}
 
+TODO
+
 \subsubsection{Elevation Features Checking}
+
+Although the aforementioned matching technique can provide accurate
+results, it highly depends on the terrain the robot is navigating in.
+The reason is that ...
 
 Explain the steps and the threshold parameter selection
 
-\begin{enumerate}
+\begin{enumerate*}[label=(\roman*)]
     \item Create slope map from local elevation map by calculating the elevation gradient
     \item Remove values in slope map below a specific threshold
     \item Add remaining values to get absolute slope of map
     \item Compare to threshold
-\end{enumerate}
+\end{enumerate*}
 
-\noindent
-Add equation for calculating the gradient and thresholding the map (image)\\
-Add figures of final slope maps that succeed/fail the criterion
+% Add equation for calculating the gradient and thresholding the map (image)\\
+% Add figures of final slope maps that succeed/fail the criterion
 
 \subsubsection{Traversed Distance Checking}
 
 Explain the step and the threshold parameter selection
 
-\begin{enumerate}
-    \item Calculate traversed distance since last pose correction step
-    \item Compare to threshold
-\end{enumerate}
+\begin{enumerate*}[label=(\roman*)]
+    \item calculate traversed distance since last pose correction step
+    \item compare to threshold
+\end{enumerate*}
 
-\noindent
-Add equation for the distance calculation (very trivial)\\
-Add figures of robot traverses that succeed/fail the criterion
+% Add equation for the distance calculation (very trivial)\\
+% Add figures of robot traverses that succeed/fail the criterion
 
