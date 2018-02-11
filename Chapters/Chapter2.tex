@@ -42,7 +42,7 @@ the former belief represents the pose estimation problem, also called
 relative localization, and the latter belief represents the mapping problem.
 
 In the second tier, the objective is to achieve absolute localization by
-eliminating the accummulated drift which occurs in the previous stage.
+eliminating the accumulated drift which occurs in the previous stage.
 This drift is present in long-range scenarios and comes from the fact that
 all the input information is coming directly from the robot itself.
 To eliminate it, a matching technique is utilized in order to find the
@@ -227,7 +227,7 @@ The map models the elevation of the environment as well as the uncertainty
 of it.
 As a result, in every position of the 2D grid, the elevation is
 represented by a one-dimensional Gaussian distribution.
-This means that the the map consists of two layers
+This means that the map consists of two layers
 
 \begin{itemize}
     \item the layer of \textit{mean} elevation $(\mu_z)$ and
@@ -471,7 +471,7 @@ $z$ are the sensory inputs and
 $u$ are the odometry inputs.
 This is done by using the odometry inputs to predict the state of each
 particle and the sensory inputs, i.e. point clouds, for the weight update.
-Additionally, the uncertainty of each particle is modelled using
+Additionally, the uncertainty of each particle is modeled using
 a Gaussian distribution.
 Finally, $yaw$ measurements from the robot's IMU sensor are fused with the
 final estimate to provide more accurate measurements.
@@ -588,7 +588,7 @@ The act of resampling the set of particles of the filter is done
 in order to ensure that the particle population models the
 uncertainty of the problem as close as possible.
 Although there are several variants that can be exploited to solve the
-resampling problem depending on the situtation, we make use of a fairly
+resampling problem depending on the situation, we make use of a fairly
 common technique called multinomial resampling.
 % TODO(ref): resampling techniques
 
@@ -709,28 +709,13 @@ the drift by matching the local map to an \textit{a priori} global one.
 The global map can be reconstructed using imagery taken from an
 orbiter (satellite), although its resolution cannot reach the level of
 the local one.
-Furthermore, in contast to the local map which is always centered around
+Furthermore, in contrast to the local map which is always centered around
 the robot, the global map is referenced in the global frame, i.e. the
 same coordinate system as the robot's pose.
 This enables us to match the two maps and apply the delta transformation
 to correct the drifted pose.
 
-% Explain the execution strategy of this step\\
-% Mention known limitations of this approach
-
-% Strategy:
-% \begin{itemize}
-    % \item Generic: map needs to have features \& robot must have covered certain amount of cells in the global map
-    % \item Planetary specific: correct pose by the end of the day (for energy efficience reasons)
-% \end{itemize}
-
-% Limitations:
-% \begin{itemize}
-    % \item When there are no features, the local to global map matching will fail
-    % \item For safety purposes, the rover tries to generate a global path (using the global map) with as few features (i.e. rocks/craters) as possible
-% \end{itemize}
-
-\subsection{Global to Local Map Matching}
+\subsection{Global to Local Map Matching} \label{map_matching}
 
 The matching of 2D images (frames) is a topic that has been extensively
 researched in the field of computer vision and several techniques have
@@ -739,7 +724,7 @@ Since grid-based 2D maps are essentially images, it is possible to
 apply these techniques to maps as well.
 The act of matching two images consists of either finding the absolute
 position of the first image inside the second one or finding a certain
-correspondece between the two.
+correspondence between the two.
 
 Popular approaches vary from simple and statistical-based ones such as
 comparing the histogram of the images to find similarities, to
@@ -922,35 +907,80 @@ The proposed algorithm consists of the following three steps:
 
 \subsection{Criteria Checking}
 
-TODO
+Absolute map-based localization techniques are known to be time consuming,
+since they require the processing of a large amount of data.
+In our case, template matching works by comparing the local map
+to a patch of the global map for every pixel of the latter.
+Furthermore, this process is executed multiple times for a discrete space
+of angles values with the aim to correct the drift in $yaw$ in addition to
+the 2D position correction.
+It becomes obvious that a proper execution strategy has to be
+adopted in order to avoid the use of unnecessary processing power.
 
-\subsubsection{Elevation Features Checking}
+For planetary applications, since energy efficiency is of utmost importance,
+it is common for rovers to focus only on one task at each moment.
+Thus, an absolute localization task cannot be run in the middle of
+a traverse, where the robot's motors are at full power.
+An approach that takes this limitation into consideration, is to execute
+the task in the end of the day, when the rover recharges and only
+secondary tasks are scheduled.
 
-Although the aforementioned matching technique can provide accurate
-results, it highly depends on the terrain the robot is navigating in.
-The reason is that ...
+Nevertheless, as energy-efficient task scheduling is out
+of the scope of this work, we have proposed a practical solution that
+can be utilized alongside the rest of the system.
+For this purpose, two criteria are defined that have to be checked before
+a global to local map matching is initiated.
+The first criterion defines the minimum distance the robot must cover
+and the second criterion defines the structure of the environment that the
+pose correction module works in.
 
-Explain the steps and the threshold parameter selection
+\subsubsection{Traversed Distance Criterion}
 
+To minimize the execution overhead of the map matching process, it would
+be sensible to correct the localization's accumulated drift only when
+it surpasses a certain level.
+For this purpose, we defined a threshold distance value that the robot must
+traverse before a new correction can take place:
+\begin{equation}
+    \sqrt{(x - x_0)^2 + (y - y_0)^2} > d_{threshold}
+\end{equation}
+where
+$\{x, y\}$ is the current position of the robot,
+$\{x_0, y_0\}$ is the position of the last pose correction and
+$d_{threshold}$ is the traversed distance threshold value.
+It is important to notice that the robot's traversed distance is calculated
+in two dimensions, since the correction is also expressed in terms of
+$\{x, y\}$.
+
+By taking into account the fact that the delta pose that results from the
+map matching process is in the same order of magnitude as the global map's
+scale, the threshold value should be proportional to it as well.
+In addition, the threshold depends on the accuracy of the pose estimation
+as well as on the speed of the robot, and should be chosen accordingly for
+each application.
+
+\subsubsection{Environment Structure Criterion}
+
+With the exception of localization techniques that rely on global navigation
+satellite systems (e.g. GPS), the existence of some form of surrounding
+features is necessary for a robot to localize itself.
+As a result, we defined a second criterion that takes into account
+the structure of the environment by checking for elevation features.
+
+This is achieved in four steps:
 \begin{enumerate*}[label=(\roman*)]
-    \item Create slope map from local elevation map by calculating the elevation gradient
-    \item Remove values in slope map below a specific threshold
-    \item Add remaining values to get absolute slope of map
-    \item Compare to threshold
+    \item create a gradient image from the local elevation map by calculating
+        the gradient in elevation (similarly to the map matching preprocessing
+        step of Section \ref{map_matching})
+    \item threshold the gradient image to remove low gradient values
+    \item add remaining values to get total gradient value
+    \item compare total value to threshold.
 \end{enumerate*}
 
-% Add equation for calculating the gradient and thresholding the map (image)\\
-% Add figures of final slope maps that succeed/fail the criterion
+The threshold compared to the total gradient value is a parameter that mainly
+depends on the morphological characteristics of the terrain.
+Furthermore, it should be tuned according to the resolution of the local
+map since the sum of the map's gradients is proportional to the map's scale.
 
-\subsubsection{Traversed Distance Checking}
-
-Explain the step and the threshold parameter selection
-
-\begin{enumerate*}[label=(\roman*)]
-    \item calculate traversed distance since last pose correction step
-    \item compare to threshold
-\end{enumerate*}
-
-% Add equation for the distance calculation (very trivial)\\
-% Add figures of robot traverses that succeed/fail the criterion
+% TODO: add figures of final slope maps that succeed/fail the criterion
 
