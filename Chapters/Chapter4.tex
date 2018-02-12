@@ -4,29 +4,73 @@
 
 \section{Scope of Experiments}
 
-Mention why mapping experiments are out of the scope\\
-Explain briefly the purpose of the following experiments\\
-Explain the type of the experiments
+The purpose of the experiments is to validate the proposed system as
+well as its robustness in various terrains and configurations.
+Since the autonomous navigation of the robot is out of the scope of this
+thesis, the mapping procedure is only indirectly validated as part of the
+SLAM system.
+Thus, the main focus of the experiments is the relative and absolute
+localization techniques that were developed.
 
-\begin{itemize}
-    \item Purpose: validate the algorithm and its robustness in various terrains and configurations
-    \item Type: SIL tests (precollected data)
-\end{itemize}
+\subsection{Data Collection}
 
-\subsection{Environment}
+The performed experiments were executed by means of
+\textit{Software In the Loop} (SIL) tests using precollected data.
+The data were collected by the Planetary Robotics Lab team of the European
+Space Agency as part of a two week test campaign that took
+place in the Minas de San Jose desert in Tenerife, Spain with the aim to
+validate the integration of the HDPR rover (Section \ref{hdpr_rover}) and
+provide data for future research projects.
 
-Explain the environment of the collected data (location, traversed paths etc.)\\
-Add figures showing the said environment/traverses
+For that reason, the collected dataset contains samples from:
+\begin{enumerate*}[label=(\roman*)]
+        \item three stereo camera sensors
+        \item IMU sensor
+        \item point clouds reconstructed from drone imagery
+        \item GPS sensor.
+\end{enumerate*}
+These samples are used both as input to our system and as ground truth
+information.
+
+The environment in which the test data were collected, was chosen with
+the aim to bear close resemblance to rough planetary terrains,
+specifically to the one of Mars.
+In particular, various geological properties such as the distribution
+and the shape of the rocks is similar to the Martian terrain.
+
+% TODO: add figures showing the said environment/traverses from maps/drone
 
 \subsection{Metrics}
 
-Mention the metrics used
-
+To quantify the experimental results and evaluate the outputs of the system,
+it is necessary to introduce certain metrics:
 \begin{itemize}
-    \item MSE of pose graph
-    \item mean variance of pose graph,
+    \item \textbf{Mean Square Error (MSE) of Pose Graph}:
+        This is a straightforward metric for benchmarking SLAM algorithms
+        and can be defined as
+        \begin{equation}
+            \varepsilon_{MSE} (\hat{x}_{1:T}) = \frac{1}{T}
+            \sum\limits_{t=1}^T (\hat{x}_t \ominus x_t)^2
+        \end{equation}
+        where
+        $\hat{x}_{1:T}$ is the estimated pose graph,
+        $x_{1:T}$ is the ground truth pose graph,
+        $T$ is the number of samples and
+        $x_i \ominus x_j$ is the distance between two poses.
+
+        % TODO(ref): "On Measuring the Accuracy of SLAM Algorithms" paper
+
+    \item \textbf{Root Mean Square Deviation (RMSD) of Pose Graph}:
+        Similarly to the MSE metric, this metric expresses the sample
+        standard deviation of the differences between the estimated and the
+        ground truth poses and can be defined as
+        \begin{equation}
+            \varepsilon_{RMSD} (\hat{x}_{1:T}) = \sqrt{\frac{1}{T}
+            \sum\limits_{t=1}^T (y_t - \varepsilon_{MSE})^2}
+        \end{equation}
+        where $y_t$ is defined as $\hat{x}_t \ominus x_t$.
+
     \item (execution times)
-    \item etc.
 \end{itemize}
 
 \section{Experiments on Pose Estimation}
