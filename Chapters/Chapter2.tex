@@ -17,7 +17,7 @@ To take advantage of this existing information, we have developed a system
 which is based around two layers of data processing.
 
 In the first tier, the objective is to perceive the environment and
-capture its 3D structure in order to enable the robot to navigate in it.
+capture its 3D structure so as to enable the robot to navigate in it.
 This is achieved by constructing a local map and estimating the robot's
 current pose (position and orientation) w.r.t. its initial pose,
 using sensory inputs and odometry data.
@@ -45,7 +45,7 @@ In the second tier, the objective is to achieve absolute localization by
 eliminating the accumulated drift which occurs in the previous stage.
 This drift is present in long-range scenarios and comes from the fact that
 all the input information is coming directly from the robot itself.
-To eliminate it, a matching technique is utilized in order to find the
+To eliminate it, a matching technique is utilized with the aim of finding the
 position of the robot's local map inside a global map.
 
 The separation of the system to two layers comes from the need to process the
@@ -86,7 +86,7 @@ Volumetric maps provide a more detailed and precise model of the environment
 compared to feature-based maps and are, therefore, the better choice for
 robots that aim to solve navigation tasks.
 Moreover, autonomous robots that need to navigate in non-flat surfaces,
-require a 3D model in order to safely avoid the terrain's obstacles.
+require a 3D model as a means to safely avoid the terrain's obstacles.
 Robotic applications with this requirement include outdoor, underwater,
 airborne or planetary missions.
 
@@ -250,7 +250,7 @@ The most important are
 
 Regarding the last property, it is worth mentioning that the orientation
 of the map is fixed w.r.t. to the global frame.
-This decision was made in order to reduce the complexity when performing
+This decision was made with a focus on reducing the complexity when performing
 a prediction of the map (see next section).
 
 \subsubsection{Map Prediction and Update} \label{map_prediction_and_update}
@@ -548,8 +548,8 @@ a point cloud extracted from the robot's local map using
 an \text{Iterative Closest Point} (ICP) variant.
 % TODO(ref): ICP
 
-In order to achieve a fast convergence of the ICP, we first preprocess
-the inputs as such:
+For the purpose of achieving a fast convergence of the ICP,
+we first preprocess the inputs as such:
 \begin{enumerate*}[label=(\roman*)]
     \item crop the raw point cloud (sensor scan) to the local map's size
     \item convert local map to a point cloud using the elevation values of
@@ -585,7 +585,7 @@ Therefore, the weight $w_i$ of a particle $p_i$ is calculated as
 \subsection{Resampling}
 
 The act of resampling the set of particles of the filter is done
-in order to ensure that the particle population models the
+to ensure that the particle population models the
 uncertainty of the problem as close as possible.
 Although there are several variants that can be exploited to solve the
 resampling problem depending on the situation, we make use of a fairly
@@ -702,7 +702,7 @@ is still based on dead-reckoning due to the fact that all the inputs
 of the process arrive from internal sensors.
 As a result, a localization error is accumulated in long-range traverses
 and the robot's pose in the global reference frame is unknown.
-In order to bound this error and achieve absolute (global) localization,
+With the aim of bounding this error and achieve absolute (global) localization,
 we have developed an extra component in the system that eliminates
 the drift by matching the local map to an \textit{a priori} global one.
 
@@ -915,7 +915,7 @@ Furthermore, this process is executed multiple times for a discrete space
 of angles values with the aim to correct the drift in $yaw$ in addition to
 the 2D position correction.
 It becomes obvious that a proper execution strategy has to be
-adopted in order to avoid the use of unnecessary processing power.
+adopted so as to avoid the use of unnecessary processing power.
 
 For planetary applications, since energy efficiency is of utmost importance,
 it is common for rovers to focus only on one task at each moment.
