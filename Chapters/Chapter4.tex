@@ -40,12 +40,12 @@ and the shape of the rocks is similar to the Martian terrain.
 
 % TODO: add figures showing the said environment/traverses from maps/drone
 
-\subsection{Metrics}
+\subsection{Metrics} \label{metrics}
 
 To quantify the experimental results and evaluate the outputs of the system,
 it is necessary to introduce certain metrics:
 \begin{itemize}
-    \item \textbf{Mean Square Error (MSE) of Pose Graph}:
+    \item \textbf{Mean square error (MSE) of pose graph}:
         This is a straightforward metric for benchmarking SLAM algorithms
         and can be defined as
         \begin{equation}
@@ -60,7 +60,7 @@ it is necessary to introduce certain metrics:
 
         % TODO(ref): "On Measuring the Accuracy of SLAM Algorithms" paper
 
-    \item \textbf{Root Mean Square Deviation (RMSD) of Pose Graph}:
+    \item \textbf{Root mean square deviation (RMSD) of pose graph}:
         Similarly to the MSE metric, this metric expresses the sample
         standard deviation of the differences between the estimated and the
         ground truth poses and can be defined as
@@ -70,34 +70,80 @@ it is necessary to introduce certain metrics:
         \end{equation}
         where $y_t$ is defined as $\hat{x}_t \ominus x_t$.
 
-    \item (execution times)
+    % \item \textbf{Execution time of scan matching}:
+    % \item \textbf{Execution time of map matching}:
 \end{itemize}
 
 \section{Experiments on Pose Estimation}
 
 \subsection{Relative Localization Results}
 
-Explain what the experiment is (test the accuracy of the particle filter)\\
-Explain what is the expected accuracy of the estimation (1 cell size of local map)
+The purpose of this experiment is to test the accuracy of the particle filter
+in relative localization (short-range) scenarios.
+To accomplish that, we will carry out each experiment in separate
+environments and use different parameter sets with the aim of finding an
+optimal configuration for the particle filter.
 
-\bigskip
-\noindent
-Add bird's eye view of XY plot comparing:
-\begin{itemize}
-    \item ground truth 2D position
-    \item (Odometry)
-    \item PF estimate
-\end{itemize}
+The main parameters that we will tune during the experiments are
+\begin{enumerate*}[label=(\roman*)]
+        \item the number of particles
+        \item the resampling frequency
+        \item the standard deviation of the Gaussian noise.
+\end{enumerate*}
+Regarding the environment, since the existence of features affects the
+outcome of the particle filter's scan matching, it is necessary to
+repeat the tests in terrains with distinct rock distributions.
+Finally, the expected estimation error of the particle filter should
+ideally be less than the size of one cell of the local map, so as to
+ensure that the robot can distinguish the environment's obstacles with
+a high-level of certainty.
 
-\noindent
-Add plot showing the error vs the number of particles used\\
-Add plot showing the mean variance of the estimate vs the number of particles used\\
-Add table showing the execution time vs the numner of particles used\\
-Add plot showing the error vs the resampling frequency
+\subsubsection{Scenario 1}
 
-\bigskip
-\noindent
-Discuss the above results and what are the advantages/drawbacks while tuning each parameter
+Figure \ref{fig:terrain_1} shows a view of the evaluated terrain of the first
+scenario.
+The terrain is depicted in the form of one dense point cloud which was
+reconstructed from drone imagery.
+% TODO: add 3D (not bird's eye view) of terrain from drone map PLY
+The bird's eye view in Figure \ref{fig:bird_1} shows the traverse of the
+robot in this scenario and compares the ground truth path, the one
+from raw visual odometry and the one from the particle filter.
+% TODO: add bird's eye view with: ground truth/Odometry/PF estimate
+% TODO: quickly discuss result
+
+In particular, the effect of the number of particles used has on
+the outcome is shown in the comparison plots in Figures
+\ref{fig:mean_error_vs_particles} and \ref{fig:std_error_vs_particles}.
+% TODO: add plot showing the mean error vs particles
+% TODO: add plot showing the std error vs particles
+% TODO: quickly discuss result
+
+Furthermore, the plots in Figures \ref{fig:mean_error_vs_resampling} and
+\ref{fig:std_error_vs_resampling} represent the same errors as the previous
+plots, with the difference that the number of particles is fixed to the
+value of 50 and the resampling frequency is the variable parameter.
+% TODO: add plot showing the mean error vs resampling
+% TODO: add plot showing the std error vs resampling
+% TODO: quickly discuss result
+
+For the purpose of further quantifying the results of this scenario altogether,
+we calculate the $MSE$ and $RMSD$ metrics (defined in Section \ref{metrics})
+for the parameter sets that were used to generate the above plots.
+The values of these metrics are presented in Table \ref{table:metrics_1}.
+% TODO: add table with MSE/RMSD vs {1particle+5resampling, 50p+5r, 100p+5r, ..}
+% TODO: quickly discuss result
+
+% TODO: discuss the above results and what are the advantages/drawbacks while tuning each parameter
+
+\subsubsection{Scenario 2}
+
+In the second scenario, a more sparse terrain was evaluated with a focus on
+quantifying the efficiency of the developed scan matching technique, which
+is directly affected by the existence of features.
+Figure \ref{fig:terrain_2} shows the aforementioned terrain and
+Figure \ref{fig:bird_2} shows the robot's traverse in it.
+
+% TODO
 
 \section{Experiments on Global Map Matching}
 
@@ -106,39 +152,25 @@ Discuss the above results and what are the advantages/drawbacks while tuning eac
 Explain what the experiment is (test the drift correction on long range traverses)\\
 Explain what is the expected accuracy of the correction (1 cell size of global map)
 
-\bigskip
-\noindent
-Add bird's eye view of XY plot comparing:
-\begin{itemize}
-    \item ground truth 2D position
-    \item (Odometry)
-    \item PF estimate without global correction
-    \item PF estimate with global correction
-\end{itemize}
+%TODO: add bird's eye view of XY plot comparing:
+%   ground truth 2D position
+%   (Odometry)
+%   PF estimate without global correction
+%   PF estimate with global correction
 
-\bigskip
-\noindent
-Repeat test in environment with different distribution of features\\
-(Repeat test in environment without features to show the limitation of the approach)
+% TODO: pepeat test in environment with different distribution of features
+% TODO: (repeat test in environment without features to show the limitation of the approach)
 
-\bigskip
-\noindent
-Add table with the matching accuracy of the different experiments
+% TODO: add table with the matching accuracy of the different experiments
 
-\bigskip
-\noindent
-Discuss the threshold value that should be chosen on such environments
+% TODO: discuss the threshold value that should be chosen on such environments
 
 \subsection{Map Resolution Viability}
 
 Explain what the experiment is (test under what resolutions can we expect a drift correction)
 
-\bigskip
-\noindent
-Add figure showing local \& global maps with different resolution\\
-Add table comparing global vs local map resolutions using the correction error (actual offset - matched location)
+% TODO: add figure showing local \& global maps with different resolution
+% TODO: add table comparing global vs local map resolutions using the correction error (actual offset - matched location)
 
-\bigskip
-\noindent
-Discuss the global and local map resolution of the current Mars missions and how these will change in the future (e.g. NASA is planning to have 0.25m orbiter map resolution by 2020)
+% TODO: discuss the global and local map resolution of the current Mars missions and how these will change in the future (e.g. NASA is planning to have 0.25m orbiter map resolution by 2020)
 
