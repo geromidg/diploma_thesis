@@ -38,6 +38,16 @@ specifically to the one of Mars.
 In particular, various geological properties such as the distribution
 and the shape of the rocks is similar to the Martian terrain.
 
+Finally, the speed of the robot in these datasets was chosen to be close
+to the $\SI{10}{\cm}$ value, considering the long-range traverses it was
+required to cover.
+As such, for the first two experiments, the size of the local map is fixed at
+$\SI{20 x 20}{\m}$ and its resolution at $\SI{10}{\cm \per cell}$,
+while for the global map we presumed the resolution to be fixed at
+$\SI{50}{\cm \per cell}$.
+In the third experiment, the performance of our approach is validated against
+these parameters, hence they are variable.
+
 % TODO: add figures showing the said environment/traverses from maps/drone
 
 \subsection{Metrics} \label{metrics}
@@ -78,48 +88,52 @@ it is necessary to introduce certain metrics:
 
 \subsection{Relative Localization Results}
 
-The purpose of this experiment is to test the accuracy of the particle filter
+The purpose of this experiment is to test the accuracy of the Pose Estimation
+module (see Section \ref{pose_estimation}) and evaluate its capabilities
 in relative localization (short-range) scenarios.
 To accomplish that, we will carry out each experiment in separate
-environments and use different parameter sets with the aim of finding an
-optimal configuration for the particle filter.
+environments and use different parameter sets with the aim of examining the
+system's sensitivity as well as finding an optimal parameter configuration.
 
-The main parameters that we will tune during the experiments are
+The main parameters that we will tune during the experiments are all related
+to the particle filter and include
 \begin{enumerate*}[label=(\roman*)]
-        \item the number of particles
+        \item the number of particles used
         \item the resampling frequency
-        \item the standard deviation of the Gaussian noise.
+        \item the standard deviation of the Gaussian noise
+            added to each particle.
 \end{enumerate*}
-Regarding the environment, since the existence of features affects the
-outcome of the particle filter's scan matching, it is necessary to
+With regard to the environment, since the existence of features affects the
+outcome of the scan matching which is performed to update the weight
+of each particle (see Section \ref{pf_update}), it is necessary to
 repeat the tests in terrains with distinct rock distributions.
-Finally, the expected estimation error of the particle filter should
+Finally, the expected error of the estimated pose should
 ideally be less than the size of one cell of the local map, so as to
 ensure that the robot can distinguish the environment's obstacles with
 a high-level of certainty.
 
 \subsubsection{Scenario 1}
 
-Figure \ref{fig:terrain_1} shows a view of the evaluated terrain of the first
+Figure \ref{fig:terrain_1} present a view of the evaluated terrain of the first
 scenario.
 The terrain is depicted in the form of one dense point cloud which was
 reconstructed from drone imagery.
 % TODO: add 3D (not bird's eye view) of terrain from drone map PLY
 The bird's eye view in Figure \ref{fig:bird_1} shows the traverse of the
 robot in this scenario and compares the ground truth path, the one
-from raw visual odometry and the one from the particle filter.
+from raw visual odometry and the one from the pose estimation.
 % TODO: add bird's eye view with: ground truth/Odometry/PF estimate
 % TODO: quickly discuss result
 
 In particular, the effect of the number of particles used has on
 the outcome is shown in the comparison plots in Figures
-\ref{fig:mean_error_vs_particles} and \ref{fig:std_error_vs_particles}.
+\ref{fig:mean_error_vs_particles_1} and \ref{fig:std_error_vs_particles_1}.
 % TODO: add plot showing the mean error vs particles
 % TODO: add plot showing the std error vs particles
 % TODO: quickly discuss result
 
-Furthermore, the plots in Figures \ref{fig:mean_error_vs_resampling} and
-\ref{fig:std_error_vs_resampling} represent the same errors as the previous
+Furthermore, the plots in Figures \ref{fig:mean_error_vs_resampling_2} and
+\ref{fig:std_error_vs_resampling_2} represent the same errors as the previous
 plots, with the difference that the number of particles is fixed to the
 value of 50 and the resampling frequency is the variable parameter.
 % TODO: add plot showing the mean error vs resampling
@@ -138,39 +152,131 @@ The values of these metrics are presented in Table \ref{table:metrics_1}.
 \subsubsection{Scenario 2}
 
 In the second scenario, a more sparse terrain was evaluated with a focus on
-quantifying the efficiency of the developed scan matching technique, which
+quantifying the robustness of the developed scan matching technique, which
 is directly affected by the existence of features.
-Figure \ref{fig:terrain_2} shows the aforementioned terrain and
+Figure \ref{fig:terrain_2} presents the aforementioned terrain and
 Figure \ref{fig:bird_2} shows the robot's traverse in it.
+% TODO: add bird's eye view with: ground truth/Odometry/PF estimate
+% TODO: quickly discuss result
 
-% TODO
+In the same manner as in the first scenario, we carry out this experiment
+against various parameter configurations.
+By tuning the number of particles, we received the results shown in Figures
+\ref{fig:mean_error_vs_particles_2} and \ref{fig:std_error_vs_particles_2}.
+Accordingly, tuning the resampling frequency results to the plots shown in
+Figures \ref{fig:mean_error_vs_resampling_2} and
+\ref{fig:std_error_vs_resampling_2}.
+% TODO: add plot showing the mean error vs particles
+% TODO: add plot showing the std error vs particles
+% TODO: add plot showing the mean error vs resampling
+% TODO: add plot showing the std error vs resampling
+% TODO: quickly discuss result
+
+Finally, we evaluate the overall performance of the system in this scenario
+using the $MSE$ and $RMSD$ metrics as shown in Table \ref{table:metrics_2}.
+% TODO: add table with MSE/RMSD vs {1particle+5resampling, 50p+5r, 100p+5r, ..}
+% TODO: quickly discuss result
+
+% TODO: discuss the robustness of the scan matching technique of the PF
 
 \section{Experiments on Global Map Matching}
 
 \subsection{Absolute Localization Results}
 
-Explain what the experiment is (test the drift correction on long range traverses)\\
-Explain what is the expected accuracy of the correction (1 cell size of global map)
+Contrary to relative localization, which is the ability to track the robot's
+pose, absolute localization is the ability to maintain the tracked pose
+which diverges due to accumulated errors over time.
+For this purpose, we will test the system in long-range
+scenarios where localization drifts are manifested and assess the robustness
+of the Pose Correction module (see Section \ref{pose_correction})
 
-%TODO: add bird's eye view of XY plot comparing:
-%   ground truth 2D position
-%   (Odometry)
-%   PF estimate without global correction
-%   PF estimate with global correction
+Similarly to the pose estimation experiments, the expected error of the
+corrected pose should ideally be less than the size of one cell of the global
+map, in consideration of the fact that the global map's resolution is higher
+than the resolution of the local map.
 
-% TODO: pepeat test in environment with different distribution of features
-% TODO: (repeat test in environment without features to show the limitation of the approach)
+\subsubsection{Scenario 1}
 
-% TODO: add table with the matching accuracy of the different experiments
+In the first scenario we evaluate the pose correction functionality in
+a feature-rich terrain, i.e. a terrain that contains several elevation
+features such as rocks.
+Figure \ref{fig:terrain_3} presents the view of such terrain as a dense
+point cloud and Figure \ref{fig:bird_3} shows the traverse inside it.
+In addition, we present the orthographic projections of the global
+elevation map (Figure \ref{fig:global_elevation_map_1}) and its gradient
+(Figure \ref{fig:global_gradient_map_1}).
+% TODO: add 3D (not bird's eye view) of terrain from drone map PLY
+% TODO: add bird's eye view with: ground truth/no correction/correction
+% TODO: add orthographic projection with global elevation map and its gradient
 
-% TODO: discuss the threshold value that should be chosen on such environments
+The correction of the accumulated error is more visible in the plot of
+Figure \ref{fig:pose_correction_error_1}.
+The score of the yielded result from the global to local map matching,
+as well as the rate of correction, are visible in Table
+\ref{table:pose_correction_1}.
+We can notice that the score of the match is $97\%$ (where $100\%$ is a
+perfect match - as defined in Section \ref{map_matching}) and since
+the matching threshold was set to $95\%$, the match is accepted and used
+to correct the robot's pose by $99\%$.
+% TODO: add plot showing the pose error over time
+% TODO: add table with the matching accuracy and percentage/rate of correction
+
+As we already mentioned, the exact moment of correction is determined by
+the two criteria that were defined in the implementation of the Pose Correction
+module (see Section \ref{pose_correction_criteria}).
+However, since both of them are straightforward, their experimental
+validation is left out.
+
+\subsubsection{Scenario 2}
+
+By repeating the experiment in a less feature-rich terrain
+(Figure \ref{fig:terrain_4}) we do not observe a correction of the
+robot's global pose as seen in Figures \ref{fig:bird_4} and
+\ref{fig:pose_correction_error_2}.
+% TODO: add 3D (not bird's eye view) of terrain from drone map PLY
+% TODO: add bird's eye view with: ground truth/no correction/correction
+% TODO: add plot showing the pose error over time
+The reason is that due to the lack of elevation features and slopes,
+the map matching does not yield a match with sufficiently high score.
+Precisely, the score of the rejected match is $64\%$ while the matching
+threshold is $95\%$, as in the previous scenario.
+
+The lack of features in the terrain is also visible in global
+elevation map (Figure \ref{fig:global_elevation_map_2}) and its gradient
+(Figure \ref{fig:global_gradient_map_2}).
+% TODO: add bird's eye view with: ground truth/no correction/correction
+% TODO: add orthographic projection with global elevation map and its gradient
 
 \subsection{Map Resolution Viability}
 
-Explain what the experiment is (test under what resolutions can we expect a drift correction)
+In this experiment, we validate and measure the performance of our map
+matching technique for absolute localization by performing the same
+scenarios with different combinations of resolutions for the local and
+global maps.
+This is done with the aim to draw conclusions regarding the viability
+of our approach w.r.t. the available global map data as well as
+the processing capabilities of a robot.
 
-% TODO: add figure showing local \& global maps with different resolution
-% TODO: add table comparing global vs local map resolutions using the correction error (actual offset - matched location)
+Figure \ref{fig:map_resolutions} presents the local and global elevation
+maps with distinct resolution values.
+Upon matching these maps, we observe the score of each match for every
+combination of resolutions (Table \ref{fig:map_resolutions}).
+% TODO: quickly discuss result
 
-% TODO: discuss the global and local map resolution of the current Mars missions and how these will change in the future (e.g. NASA is planning to have 0.25m orbiter map resolution by 2020)
+% TODO: move this paragraph to Conclusion
+Although the size and resolution of the local map are parameters that we
+determine, they are highly limited by the on board processing power of the
+robot, since the higher the resolution the more computations must be performed.
+On the other hand, the resolution of the global map is a parameter that is
+determined by the equipped camera sensors of the orbiters and the
+reconstruction techniques applied to the imagery received from those.
+As the technology of the space industry advances, we can expect to observe
+in the next few years an increase in the aforementioned resolution parameters
+and, consequently, an increase in efficiency of the map matching techniques.
+As an example, the HiRISE on board camera of the
+\textit{Mars Reconnaissance Orbiter} can currently achieve a resolution of
+$\SI{30}{\cm \per pixel}$ with the possibility to acquire stereo image pairs
+with a precision better than $\SI{25}{\cm \per pixel}$ over locations of
+high priority, i.e. potential landing site of future missions to Mars.
+% TODO(ref): HiRISE fact
 

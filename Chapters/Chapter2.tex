@@ -539,7 +539,7 @@ $\Delta x$, $\Delta y$ and $\Delta \theta$ are the delta inputs from odometry
 and $\sigma^2_x$, $\sigma^2_y$ and $\sigma^2_\theta$ are the variances of
 the states that define the Gaussian noise that will be added to the particle.
 
-\subsection{Update}
+\subsection{Update} \label{pf_update}
 
 When a new point cloud measurement $z_t$ is received, the weight of each
 particle $p_i$ is updated using scan matching.
@@ -694,7 +694,7 @@ $\theta_i$ is the $yaw$ hypothesis of each particle.
 The fusion of the two distributions is performed in a similar fashion as
 in the Data Registration module (Section \ref{map_update}).
 
-\section{Pose Correction}
+\section{Pose Correction} \label{pose_correction}
 
 Although the robot's pose is constantly tracked using a particle filter in the
 Pose Estimation module (Section \ref{pose_estimation}), the approach
@@ -905,7 +905,7 @@ The proposed algorithm consists of the following three steps:
         \ref{pf_prediction}.
 \end{itemize}
 
-\subsection{Criteria Checking}
+\subsection{Criteria Checking} \label{pose_correction_criteria}
 
 Absolute map-based localization techniques are known to be time consuming,
 since they require the processing of a large amount of data.
