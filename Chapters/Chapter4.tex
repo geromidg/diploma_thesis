@@ -125,6 +125,26 @@ from raw visual odometry and the one from the pose estimation.
 % TODO: add bird's eye view with: ground truth/Odometry/PF estimate
 % TODO: quickly discuss result
 
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{scenario_1_terrain}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:terrain_1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{scenario_1_bird}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:bird_1}
+\end{figure}
+
 In particular, the effect of the number of particles used has on
 the outcome is shown in the comparison plots in Figures
 \ref{fig:mean_error_vs_particles_1} and \ref{fig:std_error_vs_particles_1}.
@@ -132,13 +152,53 @@ the outcome is shown in the comparison plots in Figures
 % TODO: add plot showing the std error vs particles
 % TODO: quickly discuss result
 
-Furthermore, the plots in Figures \ref{fig:mean_error_vs_resampling_2} and
-\ref{fig:std_error_vs_resampling_2} represent the same errors as the previous
+\begin{figure}
+    \centering
+    \input{Plots/dummy.tex}
+    % \input{Plots/mean_error_vs_particles_1.tex}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:mean_error_vs_particles_1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \input{Plots/dummy.tex}
+    % \input{Plots/std_error_vs_particles_1.tex}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:std_error_vs_particles_1}
+\end{figure}
+
+Furthermore, the plots in Figures \ref{fig:mean_error_vs_resampling_1} and
+\ref{fig:std_error_vs_resampling_1} represent the same errors as the previous
 plots, with the difference that the number of particles is fixed to the
 value of 50 and the resampling frequency is the variable parameter.
 % TODO: add plot showing the mean error vs resampling
 % TODO: add plot showing the std error vs resampling
 % TODO: quickly discuss result
+
+\begin{figure}
+    \centering
+    \input{Plots/dummy.tex}
+    % \input{Plots/mean_error_vs_resampling_1.tex}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:mean_error_vs_resampling_1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \input{Plots/dummy.tex}
+    % \input{Plots/std_error_vs_resampling_1.tex}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:std_error_vs_resampling_1}
+\end{figure}
 
 For the purpose of further quantifying the results of this scenario altogether,
 we calculate the $MSE$ and $RMSD$ metrics (defined in Section \ref{metrics})
@@ -146,6 +206,30 @@ for the parameter sets that were used to generate the above plots.
 The values of these metrics are presented in Table \ref{table:metrics_1}.
 % TODO: add table with MSE/RMSD vs {1particle+5resampling, 50p+5r, 100p+5r, ..}
 % TODO: quickly discuss result
+
+\begin{table}
+    \centering
+    \begin{tabular}{| c | c || c | c |}
+        \hline
+        Particle Number & Resampling frequency & MSE & RMSD \\
+        \hline
+        \hline
+        50 & 1 & 100 & 10 \\
+        50 & 5 & 100 & 10 \\
+        50 & 20 & 100 & 10 \\
+        100 & 1 & 100 & 10 \\
+        100 & 1 & 100 & 10 \\
+        100 & 5 & 100 & 10 \\
+        200 & 20 & 100 & 10 \\
+        200 & 5 & 100 & 10 \\
+        200 & 20 & 100 & 10 \\
+        \hline
+    \end{tabular}
+    \caption[Name]{
+        Description
+    }
+    \label{table:metrics_1}
+\end{table}
 
 % TODO: discuss the above results and what are the advantages/drawbacks while tuning each parameter
 
@@ -159,6 +243,26 @@ Figure \ref{fig:bird_2} shows the robot's traverse in it.
 % TODO: add bird's eye view with: ground truth/Odometry/PF estimate
 % TODO: quickly discuss result
 
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{scenario_2_terrain}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:terrain_2}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{scenario_2_bird}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:bird_2}
+\end{figure}
+
 In the same manner as in the first scenario, we carry out this experiment
 against various parameter configurations.
 By tuning the number of particles, we received the results shown in Figures
@@ -171,6 +275,46 @@ Figures \ref{fig:mean_error_vs_resampling_2} and
 % TODO: add plot showing the mean error vs resampling
 % TODO: add plot showing the std error vs resampling
 % TODO: quickly discuss result
+
+\begin{figure}
+    \centering
+    \input{Plots/dummy.tex}
+    % \input{Plots/mean_error_vs_particles_2.tex}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:mean_error_vs_particles_2}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \input{Plots/dummy.tex}
+    % \input{Plots/std_error_vs_particles_2.tex}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:std_error_vs_particles_2}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \input{Plots/dummy.tex}
+    % \input{Plots/mean_error_vs_resampling_2.tex}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:mean_error_vs_resampling_2}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \input{Plots/dummy.tex}
+    % \input{Plots/std_error_vs_resampling_2.tex}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:std_error_vs_resampling_2}
+\end{figure}
 
 Finally, we evaluate the overall performance of the system in this scenario
 using the $MSE$ and $RMSD$ metrics as shown in Table \ref{table:metrics_2}.
@@ -207,6 +351,47 @@ elevation map (Figure \ref{fig:global_elevation_map_1}) and its gradient
 (Figure \ref{fig:global_gradient_map_1}).
 % TODO: add 3D (not bird's eye view) of terrain from drone map PLY
 % TODO: add bird's eye view with: ground truth/no correction/correction
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{scenario_3_terrain}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:terrain_3}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{scenario_3_bird}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:bird_3}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{global_elevation_map_1}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:global_elevation_map_1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{global_gradient_map_1}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:global_gradient_map_1}
+\end{figure}
+
 % TODO: add orthographic projection with global elevation map and its gradient
 
 The correction of the accumulated error is more visible in the plot of
@@ -220,6 +405,16 @@ the matching threshold was set to $95\%$, the match is accepted and used
 to correct the robot's pose by $99\%$.
 % TODO: add plot showing the pose error over time
 % TODO: add table with the matching accuracy and percentage/rate of correction
+
+\begin{figure}
+    \centering
+    \input{Plots/dummy.tex}
+    % \input{Plots/pose_correction_error_1.tex}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:pose_correction_error_1}
+\end{figure}
 
 As we already mentioned, the exact moment of correction is determined by
 the two criteria that were defined in the implementation of the Pose Correction
@@ -241,11 +436,61 @@ the map matching does not yield a match with sufficiently high score.
 Precisely, the score of the rejected match is $64\%$ while the matching
 threshold is $95\%$, as in the previous scenario.
 
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{scenario_4_terrain}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:terrain_4}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{scenario_4_bird}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:bird_3}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \input{Plots/dummy.tex}
+    % \input{Plots/pose_correction_error_2.tex}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:pose_correction_error_2}
+\end{figure}
+
 The lack of features in the terrain is also visible in global
 elevation map (Figure \ref{fig:global_elevation_map_2}) and its gradient
 (Figure \ref{fig:global_gradient_map_2}).
 % TODO: add bird's eye view with: ground truth/no correction/correction
 % TODO: add orthographic projection with global elevation map and its gradient
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{global_elevation_map_2}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:global_elevation_map_2}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{global_gradient_map_2}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:global_gradient_map_2}
+\end{figure}
 
 \subsection{Map Resolution Viability}
 
@@ -260,8 +505,18 @@ the processing capabilities of a robot.
 Figure \ref{fig:map_resolutions} presents the local and global elevation
 maps with distinct resolution values.
 Upon matching these maps, we observe the score of each match for every
-combination of resolutions (Table \ref{fig:map_resolutions}).
+combination of resolutions (Table \ref{table:map_resolutions}).
 % TODO: quickly discuss result
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
+    % \includegraphics[scale=0.4]{map_resolutions}
+    \caption[Name]{
+        Description
+    }
+    \label{fig:map_resolutions}
+\end{figure}
 
 % TODO: move this paragraph to Conclusion
 Although the size and resolution of the local map are parameters that we
