@@ -1,6 +1,6 @@
 \label{Chapter2}
 
-\chapter{System Architecture}
+\chapter{GA SLAM}
 
 \section{System Overview} \label{system_overview}
 
@@ -14,6 +14,7 @@ environment the robot is trying to navigate into.
 This map can be reconstructed using imagery taken from an orbiter and
 has a notably lower resolution compared to the robot's sensory data.
 To take advantage of this existing information, we have developed a system
+called \textit{Globally Adaptive SLAM (GA SLAM)},
 which is based around two layers of data processing.
 
 In the first tier, the objective is to perceive the environment and
@@ -152,7 +153,7 @@ that consists of the following four steps:
         $S$ and need to be transformed in the map's frame $M$ in order to be
         registered.
         This is be achieved by
-        \begin{equation}
+        \begin{equation} \label{eq:point_cloud_tf}
             \mathbf{t}_{MP} =
                 \mathbf{R}_{SM} \mathbf{t}_{SP} -
                 \mathbf{t}_{SM}
@@ -201,13 +202,66 @@ that consists of the following four steps:
         In this last step, we use the sensor's model to calculate the variance
         of each point in the point cloud, $\sigma^2_z$.
         As a result, each point will contain in addition to a $x$ and $y$
-        position, a one-dimensional Gaussian distribution for the height.
-        This calculation is different for every sensor, since it depends
-        on the sensor's characteristic.
-        For a stereo camera, we approximate the variance as
+        position, a one-dimensional Gaussian distribution $\{z, \sigma^2_z\}$
+        for the height.
+        The $z$ value is calculated by applying the projection matrix
+        $\mathbf{P} = [0 \ 0 \ 1]$ to the transformed point using the Equation
+        \ref{eq:point_cloud_tf}:
         \begin{equation}
-            \sigma^2_z = \dots
+            z = \mathbf{P}(
+                \mathbf{R}_{SM} \mathbf{t}_{SP} -
+                \mathbf{t}_{SM})
         \end{equation}
+        This equation can also be written as
+        \begin{equation}
+            z = f(\mathbf{t}_{SP})
+        \end{equation}
+        where
+        $f : \mathbb{R}^3 \rightarrow \mathbb{R}$ is a non linear function.
+
+        To obtain the variance value of the transformed point, we propagate
+        the uncertainty of the initial point as
+        \begin{equation}
+            \sigma^2_z = \mathbf{\Sigma}^f =
+            \mathbf{J} \ \mathbf{\Sigma}^{\mathbf{t}_{SP}} \
+            \mathbf{J}^\intercal
+        \end{equation}
+        where $\mathbf{\Sigma}^f$ is the variance-covariance matrix of $f$,
+        $\mathbf{\Sigma}^{\mathbf{t}_{SP}}$ is the covariance matrix of
+        the initial point and
+        $\mathbf{J}$ is the Jacobian matrix of $f$ defined as
+        \begin{equation}
+            \mathbf{J} = \frac{\partial f}{\partial \mathbf{t}_{SP}} =
+            \mathbf{P} \ \mathbf{R}_{SM}
+        \end{equation}
+
+        % TODO(ref): uncertainty propagation
+
+        The covariance matrix for a point in the point cloud is defined as
+        \begin{equation}
+            \mathbf{\Sigma}^{\mathbf{t}_{SP}} =
+            \begin{bmatrix}
+                \sigma^2_{xx} & \sigma^2_{xy} & \sigma^2_{xz} \\
+                \sigma^2_{yx} & \sigma^2_{yy} & \sigma^2_{yz} \\
+                \sigma^2_{zx} & \sigma^2_{zy} & \sigma^2_{zz}
+            \end{bmatrix}
+        \end{equation}
+        and is different for every sensor,
+        since it depends on the sensor's model and characteristics.
+        For example, for a stereo camera we approximate the variance of
+        the point in three dimensions with a quadratic equation:
+        \begin{equation}
+            \sigma^2 =
+            \frac{c \cdot \tan(0.5 \cdot f)}{0.5 \cdot b \cdot w} \ d^2
+        \end{equation}
+        where
+        $c$ is the search range or disparity precision,
+        $f$ is the field of view,
+        $b$ is the baseline,
+        $w$ is the horizontal resolution of the camera and
+        $d$ is the range of the point.
+
+        % TODO(ref): stereo uncertainty
 \end{enumerate}
 
 % TODO: Add figure of point cloud pre and post processing
