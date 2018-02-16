@@ -1,22 +1,30 @@
 \label{Chapter3}
 
-\chapter{System Implementation}
+\chapter{Implementation and Tools}
+
+\section{Planetary Rover Testbed}
+
+Explain lab's main rovers (HDPR \& Exoter) and their mechanical/sensor configuration\\
+Add figure depicting and explaining the rover(s)
+
+% TODO(ref): HDPR paper
+
+\section{Overall System Architecture}
+
+Explain how the algorithm can be integrated in a system and what components are needed (stereo, odometry etc.)\\
+Add component diagram showing the architecture and how the different components are integrated
 
 \section{Library}
 
 Mention GA SLAM library and tools used to create it etc.
-
-\subsection{Concurrency}
-
-Explain the algorithm's processing limitations and the circumstances under which it can run\\
-Explain how concurrency can help and how it's implemented\\
-Add timing diagram explaining the issues and how they are solved
 
 \subsection{Robotic Software Framework}
 
 Explain briefly ROCK, its tools, workflow and advantages/disadvantages\\
 Explain briefly ROS etc.\\
 Mention that the standalone library has interface to both frameworks
+
+% TODO(ref): Rock paper
 
 \subsection{Orbiter Data Preprocessing}
 
@@ -37,14 +45,4 @@ Explain the steps for creating a global map from orbital point cloud:
 \noindent
 Add figures of orbiter point cloud (raw \& processed) and the orbiter map\\
 Add figures from NASA's HiRISE depicting actual Mars point clouds
-
-\section{System Architecture}
-
-Explain how the algorithm can be integrated in a system and what components are needed (stereo, odometry etc.)\\
-Add component diagram showing the architecture and how the different components are integrated\\
-
-\section{Planetary Rover Testbed}
-
-Explain lab's main rovers (HDPR \& Exoter) and their mechanical/sensor configuration\\
-Add figure depicting and explaining the rover(s)
 
