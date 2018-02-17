@@ -90,10 +90,10 @@ it is necessary to introduce certain metrics:
 
 The purpose of this experiment is to test the accuracy of the Pose Estimation
 module (see Section \ref{pose_estimation}) and evaluate its capabilities
-in relative localization (short-range) scenarios.
-To accomplish that, we will carry out each experiment in separate
-environments and use different parameter sets with the aim of examining the
-system's sensitivity as well as finding an optimal parameter configuration.
+in a relative localization (short-range) scenario.
+To accomplish that, we will carry out each experiment with different parameter
+sets with the aim of examining the system's sensitivity as well as finding an
+optimal parameter configuration.
 
 The main parameters that we will tune during the experiments are all related
 to the particle filter and include
@@ -103,19 +103,13 @@ to the particle filter and include
         \item the standard deviation of the Gaussian noise
             added to each particle.
 \end{enumerate*}
-With regard to the environment, since the existence of features affects the
-outcome of the scan matching which is performed to update the weight
-of each particle (see Section \ref{pf_update}), it is necessary to
-repeat the tests in terrains with distinct rock distributions.
 Finally, the expected error of the estimated pose should
 ideally be less than the size of one cell of the local map, so as to
 ensure that the robot can distinguish the environment's obstacles with
 a high-level of certainty.
 
-\subsubsection{Scenario 1}
-
-Figure \ref{fig:terrain_1} present a view of the evaluated terrain of the first
-scenario.
+Figure \ref{fig:terrain_1} presents a view of the evaluated terrain of the
+first scenario.
 The terrain is depicted in the form of one dense point cloud which was
 reconstructed from drone imagery.
 % TODO: add 3D (not bird's eye view) of terrain from drone map PLY
@@ -233,96 +227,6 @@ The values of these metrics are presented in Table \ref{table:metrics_1}.
 
 % TODO: discuss the above results and what are the advantages/drawbacks while tuning each parameter
 
-\subsubsection{Scenario 2}
-
-In the second scenario, a more sparse terrain was evaluated with a focus on
-quantifying the robustness of the developed scan matching technique, which
-is directly affected by the existence of features.
-Figure \ref{fig:terrain_2} presents the aforementioned terrain and
-Figure \ref{fig:bird_2} shows the robot's traverse in it.
-% TODO: add bird's eye view with: ground truth/Odometry/PF estimate
-% TODO: quickly discuss result
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{scenario_2_terrain}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:terrain_2}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{scenario_2_bird}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:bird_2}
-\end{figure}
-
-In the same manner as in the first scenario, we carry out this experiment
-against various parameter configurations.
-By tuning the number of particles, we received the results shown in Figures
-\ref{fig:mean_error_vs_particles_2} and \ref{fig:std_error_vs_particles_2}.
-Accordingly, tuning the resampling frequency results to the plots shown in
-Figures \ref{fig:mean_error_vs_resampling_2} and
-\ref{fig:std_error_vs_resampling_2}.
-% TODO: add plot showing the mean error vs particles
-% TODO: add plot showing the std error vs particles
-% TODO: add plot showing the mean error vs resampling
-% TODO: add plot showing the std error vs resampling
-% TODO: quickly discuss result
-
-\begin{figure}
-    \centering
-    \input{Plots/dummy.tex}
-    % \input{Plots/mean_error_vs_particles_2.tex}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:mean_error_vs_particles_2}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \input{Plots/dummy.tex}
-    % \input{Plots/std_error_vs_particles_2.tex}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:std_error_vs_particles_2}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \input{Plots/dummy.tex}
-    % \input{Plots/mean_error_vs_resampling_2.tex}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:mean_error_vs_resampling_2}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \input{Plots/dummy.tex}
-    % \input{Plots/std_error_vs_resampling_2.tex}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:std_error_vs_resampling_2}
-\end{figure}
-
-Finally, we evaluate the overall performance of the system in this scenario
-using the $MSE$ and $RMSD$ metrics as shown in Table \ref{table:metrics_2}.
-% TODO: add table with MSE/RMSD vs {1particle+5resampling, 50p+5r, 100p+5r, ..}
-% TODO: quickly discuss result
-
-% TODO: discuss the robustness of the scan matching technique of the PF
-
 \section{Experiments on Global Map Matching}
 
 \subsection{Absolute Localization Results}
@@ -330,20 +234,17 @@ using the $MSE$ and $RMSD$ metrics as shown in Table \ref{table:metrics_2}.
 Contrary to relative localization, which is the ability to track the robot's
 pose, absolute localization is the ability to maintain the tracked pose
 which diverges due to accumulated errors over time.
-For this purpose, we will test the system in long-range
-scenarios where localization drifts are manifested and assess the robustness
+For this purpose, we will test the system in a long-range
+scenario where localization drifts are manifested and assess the robustness
 of the Pose Correction module (see Section \ref{pose_correction})
-
 Similarly to the pose estimation experiments, the expected error of the
 corrected pose should ideally be less than the size of one cell of the global
 map, in consideration of the fact that the global map's resolution is higher
 than the resolution of the local map.
 
-\subsubsection{Scenario 1}
-
-In the first scenario we evaluate the pose correction functionality in
-a feature-rich terrain, i.e. a terrain that contains several elevation
-features such as rocks.
+In the first scenario we evaluate the pose correction functionality in a
+terrain with average feature richness, i.e. a terrain that contains
+an average amount of elevation features such as rocks.
 Figure \ref{fig:terrain_3} presents the view of such terrain as a dense
 point cloud and Figure \ref{fig:bird_3} shows the traverse inside it.
 In addition, we present the orthographic projections of the global
@@ -421,76 +322,6 @@ the two criteria that were defined in the implementation of the Pose Correction
 module (see Section \ref{pose_correction_criteria}).
 However, since both of them are straightforward, their experimental
 validation is left out.
-
-\subsubsection{Scenario 2}
-
-By repeating the experiment in a less feature-rich terrain
-(Figure \ref{fig:terrain_4}) we do not observe a correction of the
-robot's global pose as seen in Figures \ref{fig:bird_4} and
-\ref{fig:pose_correction_error_2}.
-% TODO: add 3D (not bird's eye view) of terrain from drone map PLY
-% TODO: add bird's eye view with: ground truth/no correction/correction
-% TODO: add plot showing the pose error over time
-The reason is that due to the lack of elevation features and slopes,
-the map matching does not yield a match with sufficiently high score.
-Precisely, the score of the rejected match is $64\%$ while the matching
-threshold is $95\%$, as in the previous scenario.
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{scenario_4_terrain}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:terrain_4}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{scenario_4_bird}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:bird_3}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \input{Plots/dummy.tex}
-    % \input{Plots/pose_correction_error_2.tex}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:pose_correction_error_2}
-\end{figure}
-
-The lack of features in the terrain is also visible in global
-elevation map (Figure \ref{fig:global_elevation_map_2}) and its gradient
-(Figure \ref{fig:global_gradient_map_2}).
-% TODO: add bird's eye view with: ground truth/no correction/correction
-% TODO: add orthographic projection with global elevation map and its gradient
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{global_elevation_map_2}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:global_elevation_map_2}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{global_gradient_map_2}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:global_gradient_map_2}
-\end{figure}
 
 \subsection{Map Resolution Viability}
 
