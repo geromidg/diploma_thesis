@@ -13,11 +13,21 @@ It was developed by the Automation and Robotics Lab (ARL/TEC-MMA) of the
 European Space Agency (ESA) and is currently used for validating
 software and hardware components in long range scenarios.
 
-The HDPR rover bears close resemblance to the camera setup of the ExoMars
-mission rover and allows the evaluation of algorithms that have a focus
-on autonomous navigation.
+The HDPR rover, depicted in Figure \ref{fig:hdpr_rover}, bears close
+resemblance to the camera setup of the ExoMars mission rover and allows the
+evaluation of algorithms that have a focus on autonomous navigation.
 Specifically, the sensor suite of the rover comprises of the following
 components:
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.5]{hdpr_rover}
+    \decoRule
+    \caption[Heavy duty planetary rover]{
+        The Heavy duty planetary rover (HDPR).
+    }
+    \label{fig:hdpr_rover}
+\end{figure}
 
 \begin{itemize}
     \item Exteroceptive:
@@ -52,8 +62,6 @@ the orientation and acceleration of the robot.
 Although the rest of the sensors are not actively used by our system,
 they can be exploited for validation purposes.
 
-% TODO: add figures of the rover / sensor setup
-
 % TODO(ref): HDPR paper
 
 \section{Overall System Architecture}
@@ -74,8 +82,7 @@ is shown in the system component diagram of Figure
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[scale=0.4]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{system_component_diagram}
+    \includegraphics[scale=0.7]{system_component_diagram}
     \decoRule
     \caption[System component diagram]{
         The components of the system that enable the HDPR to perform
@@ -147,12 +154,28 @@ of another component.
 \subsection{Orbiter Data Preprocessing}
 
 As a means to validate the map matching capabilities of the system,
-it is possible to emulate an orbiter (global) map using drone imagery.
-% TODO: add figures from NASA's HiRISE depicting actual Mars point clouds
+an orbiter (global) map is necessary.
+A real example of such map has beeen reconstructed using orbital imagery,
+depicted in Figure \ref{fig:hirise_map}, that was captured using the
+High Resolution Imaging Science Experiment (HiRISE) camera mounted
+on NASA's Mars Reconnaissance Orbiter (MRO).
+
+It is possible to emulate an orbiter map using drone imagery.
 The aerial images can then be used to reconstruct and provide a 3D
 representation of the captured scene in the form of a densified point cloud.
 At a later stage, the constructed point cloud can be projected in a 2D
 grid and create an elevation map.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.25]{hirise_map}
+    \decoRule
+    \caption[MARS view from HiRISE]{
+        Close view of MARS that was captured using the HiRISE camera
+        mounted on the Mars Reconnaissance Orbiter.
+    }
+    \label{fig:hirise_map}
+\end{figure}
 
 Prior to the projection, it is necessary to preprocess the global point cloud
 in order to simplify it and transform it to a known reference system.
