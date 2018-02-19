@@ -1,5 +1,8 @@
 \label{Chapter4}
 
+\newlength\figureheight
+\newlength\figurewidth
+
 \chapter{Experimental Validation}
 
 \section{Scope of Experiments}
@@ -21,6 +24,17 @@ Space Agency as part of a two week test campaign that took
 place in the Minas de San Jose desert in Tenerife, Spain with the aim to
 validate the integration of the HDPR rover (Section \ref{hdpr_rover}) and
 provide data for future research projects.
+The aerial view of the local is presented in Figure \ref{fig:terrain}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.3]{terrain}
+    \caption[Aerial view of test field]{
+        Aerial view of test field that was reconstructed using drone
+        imagery.
+    }
+    \label{fig:terrain}
+\end{figure}
 
 For that reason, the collected dataset contains samples from:
 \begin{enumerate*}[label=(\roman*)]
@@ -39,7 +53,7 @@ In particular, various geological properties such as the distribution
 and the shape of the rocks is similar to the Martian terrain.
 
 Finally, the speed of the robot in these datasets was chosen to be close
-to the $\SI{10}{\cm}$ value, considering the long-range traverses it was
+to the $\SI{10}{\cm \per sec}$ value, considering the long-range traverses it was
 required to cover.
 As such, for the first two experiments, the size of the local map is fixed at
 $\SI{20 x 20}{\m}$ and its resolution at $\SI{10}{\cm \per cell}$,
@@ -47,8 +61,6 @@ while for the global map we presumed the resolution to be fixed at
 $\SI{50}{\cm \per cell}$.
 In the third experiment, the performance of our approach is validated against
 these parameters, hence they are variable.
-
-% TODO: add figures showing the said environment/traverses from maps/drone
 
 \subsection{Metrics} \label{metrics}
 
@@ -79,9 +91,6 @@ it is necessary to introduce certain metrics:
             \sum\limits_{t=1}^T (y_t - \varepsilon_{MSE})^2}
         \end{equation}
         where $y_t$ is defined as $\hat{x}_t \ominus x_t$.
-
-    % \item \textbf{Execution time of scan matching}:
-    % \item \textbf{Execution time of map matching}:
 \end{itemize}
 
 \section{Experiments on Pose Estimation}
@@ -103,129 +112,143 @@ to the particle filter and include
         \item the standard deviation of the Gaussian noise
             added to each particle.
 \end{enumerate*}
-Finally, the expected error of the estimated pose should
-ideally be less than the size of one cell of the local map, so as to
+Finally, the expected error of the estimated pose should ideally be in the
+same order of magnitude as the size of one cell of the local map, so as to
 ensure that the robot can distinguish the environment's obstacles with
 a high-level of certainty.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.25]{terrain_1}
+    \caption[Terrain of first experiment]{
+        3D view of the terrain evaluated in the first experiment.
+    }
+    \label{fig:terrain_1}
+\end{figure}
 
 Figure \ref{fig:terrain_1} presents a view of the evaluated terrain of the
 first scenario.
 The terrain is depicted in the form of one dense point cloud which was
 reconstructed from drone imagery.
-% TODO: add 3D (not bird's eye view) of terrain from drone map PLY
-The bird's eye view in Figure \ref{fig:bird_1} shows the traverse of the
-robot in this scenario and compares the ground truth path, the one
-from raw visual odometry and the one from the pose estimation.
-% TODO: add bird's eye view with: ground truth/Odometry/PF estimate
-% TODO: quickly discuss result
+The bird's eye view in Figures \ref{fig:bird_1_color} and \ref{fig:bird_1_raw}
+shows the traverse of the robot in this scenario and compares the ground truth
+path, the one from raw visual odometry and the one from the pose estimation.
+In contrast to the visual odometry estimate (blue path), the pose estimate
+of our system (red path) follows closely the ground truth (black path).
+The richness of the terrain in features, which is visible in Figure
+\ref{fig:bird_1_real}, is an advantage for relative localization since
+the weights of the particles in the particle filter are updated using
+scan matching.
 
-\begin{figure}
+\begin{figure}[t]
     \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{scenario_1_terrain}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:terrain_1}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{scenario_1_bird}
-    \caption[Name]{
-        Description
-    }
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[scale=0.125]{bird_1_real}
+        \caption{Point cloud projection}
+        \label{fig:bird_1_real}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[scale=0.125]{bird_1_color}
+        \caption{Global elevation map\\with an elevation colormap}
+        \label{fig:bird_1_color}
+    \end{subfigure}%
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[scale=0.125]{bird_1_raw}
+        \caption{Global elevation map\\with raw elevation values}
+        \label{fig:bird_1_raw}
+    \end{subfigure}
+    \caption[Traverse of first experiment]{Orthographic views of the
+        environment and the robot's traverses in it. The black, red and
+        blue colors correspond to the ground truth, SLAM and visual odometry
+        paths accordingly.}
     \label{fig:bird_1}
 \end{figure}
 
-In particular, the effect of the number of particles used has on
-the outcome is shown in the comparison plots in Figures
-\ref{fig:mean_error_vs_particles_1} and \ref{fig:std_error_vs_particles_1}.
-% TODO: add plot showing the mean error vs particles
-% TODO: add plot showing the std error vs particles
-% TODO: quickly discuss result
+In particular, the influence the number of particles used has on the outcome
+is shown in the comparison plot in Figure \ref{fig:error_vs_particles}.
+We observe that the pose error decreases as we increase the number of particles
+used in the particle filter, since the continuous space of the problem
+is modelled more effectively.
+However, increasing this parameter, brings a proportional increase to
+the computation needs for every iteration of the filter.
+As it is visible in the plot, a justified choice would be to use 100
+particles for a balance of error and processing power.
+Furthermore, it is important to notice that the drift in pose ($\SI{20}{\cm}$
+in the case of 100 particles), is proportional to the robot's speed
+($\SI{10}{\cm \per sec}$ in this experiment).
 
-\begin{figure}
+Regarding the second parameter, the plot in Figure
+\ref{fig:error_vs_resampling} represents the same error as the previous plots,
+with the difference that the number of particles is fixed to the value of 100
+and the resampling frequency is the variable parameter.
+It is visible that resampling too often or too rare has an impact on the
+pose error.
+This is due to the fact that by resampling, the particle population is gathered
+near the best belief and as a result other possible solutions are eliminated.
+
+\begin{figure}[h!]
     \centering
-    \input{Plots/dummy.tex}
-    % \input{Plots/mean_error_vs_particles_1.tex}
-    \caption[Name]{
-        Description
+    \begin{subfigure}{0.75\textwidth}
+        \centering
+        \setlength\figureheight{6cm}
+        \setlength\figurewidth{10cm}
+        \input{Plots/error_vs_particles.tex}
+        \caption{}
+        \label{fig:error_vs_particles}
+    \end{subfigure}
+    \begin{subfigure}{0.75\textwidth}
+        \centering
+        \setlength\figureheight{6cm}
+        \setlength\figurewidth{10cm}
+        \input{Plots/error_vs_resampling.tex}
+        \caption{}
+        \label{fig:error_vs_resampling}
+    \end{subfigure}
+    \caption[Particle filter parameter influence]{
+        (a) The influence the number of particles has on the pose error.
+        (b) The influence the resampling frequency parameter has on the error.
     }
-    \label{fig:mean_error_vs_particles_1}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \input{Plots/dummy.tex}
-    % \input{Plots/std_error_vs_particles_1.tex}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:std_error_vs_particles_1}
-\end{figure}
-
-Furthermore, the plots in Figures \ref{fig:mean_error_vs_resampling_1} and
-\ref{fig:std_error_vs_resampling_1} represent the same errors as the previous
-plots, with the difference that the number of particles is fixed to the
-value of 50 and the resampling frequency is the variable parameter.
-% TODO: add plot showing the mean error vs resampling
-% TODO: add plot showing the std error vs resampling
-% TODO: quickly discuss result
-
-\begin{figure}
-    \centering
-    \input{Plots/dummy.tex}
-    % \input{Plots/mean_error_vs_resampling_1.tex}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:mean_error_vs_resampling_1}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \input{Plots/dummy.tex}
-    % \input{Plots/std_error_vs_resampling_1.tex}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:std_error_vs_resampling_1}
+    \label{fig:parameter_comparison}
 \end{figure}
 
 For the purpose of further quantifying the results of this scenario altogether,
 we calculate the $MSE$ and $RMSD$ metrics (defined in Section \ref{metrics})
 for the parameter sets that were used to generate the above plots.
-The values of these metrics are presented in Table \ref{table:metrics_1}.
-% TODO: add table with MSE/RMSD vs {1particle+5resampling, 50p+5r, 100p+5r, ..}
-% TODO: quickly discuss result
+The values of these metrics are presented in Table \ref{table:metrics}.
+The conclusion we drew from the plots are further confirmed using the two
+metrics, since it is visible that the combination of a low number of particles
+and a very low or very high resampling frequency increases the mean square
+error and deviation by more than a factor of 4.
 
-\begin{table}
+\begin{table}[h!]
     \centering
     \begin{tabular}{| c | c || c | c |}
         \hline
         Particle Number & Resampling frequency & MSE & RMSD \\
         \hline
         \hline
-        50 & 1 & 100 & 10 \\
-        50 & 5 & 100 & 10 \\
-        50 & 20 & 100 & 10 \\
-        100 & 1 & 100 & 10 \\
-        100 & 1 & 100 & 10 \\
-        100 & 5 & 100 & 10 \\
-        200 & 20 & 100 & 10 \\
-        200 & 5 & 100 & 10 \\
-        200 & 20 & 100 & 10 \\
+        20 & 10 & 301.6 & 287.3 \\
+        \hline
+        100 & 10 & 61.1 & 55.7 \\
+        \hline
+        200 & 10 & 46.4 & 41.3 \\
+        \hline
+        \hline
+        100 & 1 & 252.0 & 240.8 \\
+        \hline
+        100 & 10 & 61.1 & 55.7 \\
+        \hline
+        100 & 50 & 168.4 & 157.5 \\
         \hline
     \end{tabular}
-    \caption[Name]{
-        Description
+    \caption[Metrics on parameter sets for relative localization]{
+        Values of the $MSE$ and $RMSD$ metrics on different sets of parameters.
     }
-    \label{table:metrics_1}
+    \label{table:metrics}
 \end{table}
-
-% TODO: discuss the above results and what are the advantages/drawbacks while tuning each parameter
 
 \section{Experiments on Global Map Matching}
 
@@ -238,84 +261,115 @@ For this purpose, we will test the system in a long-range
 scenario where localization drifts are manifested and assess the robustness
 of the Pose Correction module (see Section \ref{pose_correction})
 Similarly to the pose estimation experiments, the expected error of the
-corrected pose should ideally be less than the size of one cell of the global
-map, in consideration of the fact that the global map's resolution is higher
-than the resolution of the local map.
+corrected pose should ideally be in the same order of magnitude as the size of
+one cell of the global map, in consideration of the fact that the global map's
+resolution is higher than the resolution of the local map.
 
 In the first scenario we evaluate the pose correction functionality in a
 terrain with average feature richness, i.e. a terrain that contains
 an average amount of elevation features such as rocks.
-Figure \ref{fig:terrain_3} presents the view of such terrain as a dense
-point cloud and Figure \ref{fig:bird_3} shows the traverse inside it.
-In addition, we present the orthographic projections of the global
-elevation map (Figure \ref{fig:global_elevation_map_1}) and its gradient
-(Figure \ref{fig:global_gradient_map_1}).
-% TODO: add 3D (not bird's eye view) of terrain from drone map PLY
-% TODO: add bird's eye view with: ground truth/no correction/correction
+Figure \ref{fig:terrain_2} presents the view of such terrain as a dense
+point cloud and Figure \ref{fig:bird_2} shows the traverse inside it.
+It is visible that the SLAM estimation (red path) has a notable drift from
+the ground truth values (black path).
+Near the end of the traverse, we can observe the correction of the robot's pose
+due to a successful match of the local to global elevation map.
 
-\begin{figure}
+\begin{figure}[h!]
     \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{scenario_3_terrain}
-    \caption[Name]{
-        Description
+    \includegraphics[scale=0.25]{terrain_2}
+    \caption[Terrain of second experiment]{
+        3D view of the terrain evaluated in the second experiment.
     }
-    \label{fig:terrain_3}
+    \label{fig:terrain_2}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h!]
     \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{scenario_3_bird}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:bird_3}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[scale=0.2]{bird_2_real}
+        \caption{Point cloud projection}
+        \label{fig:bird_2_real}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[scale=0.2]{bird_2_color}
+        \caption{Global elevation map\\with an elevation colormap}
+        \label{fig:bird_2_color}
+    \end{subfigure}%
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[scale=0.2]{bird_2_raw}
+        \caption{Global elevation map\\with raw elevation values}
+        \label{fig:bird_2_raw}
+    \end{subfigure}
+    \caption[Traverse of second experiment]{Orthographic views of the
+        environment and the robot's traverses in it. The black and red colors
+        correspond to the ground truth and SLAM paths accordingly. The pose
+        correction is visible in the end of the traverse.}
+    \label{fig:bird_2}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{global_elevation_map_1}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:global_elevation_map_1}
-\end{figure}
+In addition, we present the orthographic projections of the gradient of the
+global elevation map (Figure \ref{fig:bird_2_global_gradient_map}) where
+the elevation features are more visible.
 
-\begin{figure}
+\begin{figure}[h!]
     \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{global_gradient_map_1}
-    \caption[Name]{
-        Description
+    \includegraphics[scale=0.25]{bird_2_global_gradient_map}
+    \caption[Global gradient map for pose correction]{
+        The global gradient map that the local map is matched to for
+        pose correction.
     }
-    \label{fig:global_gradient_map_1}
+    \label{fig:bird_2_global_gradient_map}
 \end{figure}
-
-% TODO: add orthographic projection with global elevation map and its gradient
 
 The correction of the accumulated error is more visible in the plot of
-Figure \ref{fig:pose_correction_error_1}.
+Figure \ref{fig:pose_correction_error}.
 The score of the yielded result from the global to local map matching,
 as well as the rate of correction, are visible in Table
-\ref{table:pose_correction_1}.
-We can notice that the score of the match is $97\%$ (where $100\%$ is a
+\ref{table:pose_correction}.
+We can notice that the score of the match is $97.1\%$ (where $100\%$ is a
 perfect match - as defined in Section \ref{map_matching}) and since
 the matching threshold was set to $95\%$, the match is accepted and used
-to correct the robot's pose by $99\%$.
-% TODO: add plot showing the pose error over time
-% TODO: add table with the matching accuracy and percentage/rate of correction
+to correct the robot's pose by $98.6\%$.
 
-\begin{figure}
+\begin{figure}[h!]
     \centering
-    \input{Plots/dummy.tex}
-    % \input{Plots/pose_correction_error_1.tex}
-    \caption[Name]{
-        Description
+    \setlength\figureheight{8cm}
+    \setlength\figurewidth{12cm}
+    \input{Plots/pose_correction.tex}
+    \caption[Pose correction error over time plot]{
+        Pose correction results of second experiment.
     }
-    \label{fig:pose_correction_error_1}
+    \label{fig:pose_correction_error}
 \end{figure}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{| c | c |}
+        \hline
+        Execution time of one iteration & $\SI{630}{\milli \second}$ \\
+        \hline
+        Total execution time & $\SI{12.6}{\sec}$ \\
+        \hline
+        \hline
+        Percentage of correction in position & $98.6\%$ \\
+        \hline
+        Percentage of correction in orientation & $82.9\%$ \\
+        \hline
+        \hline
+        Score of the matched location & $97.1\%$ \\
+        \hline
+        Acceptance threshold of match & $95\%$ \\
+        \hline
+    \end{tabular}
+    \caption[Results of pose correction for absolute localization]{
+        Resulting time, correction and score of the match found.
+    }
+    \label{table:pose_correction}
+\end{table}
 
 As we already mentioned, the exact moment of correction is determined by
 the two criteria that were defined in the implementation of the Pose Correction
@@ -333,23 +387,82 @@ This is done with the aim to draw conclusions regarding the viability
 of our approach w.r.t. the available global map data as well as
 the processing capabilities of a robot.
 
-Figure \ref{fig:map_resolutions} presents the local and global elevation
+Figure \ref{fig:global_map_resolution} presents the local and global elevation
 maps with distinct resolution values.
 Upon matching these maps, we observe the score of each match for every
 combination of resolutions (Table \ref{table:map_resolutions}).
-% TODO: quickly discuss result
+We can notice that a low resolution global map has more impact in the map
+matching score than a low resolution local map.
+In fact, a global map with a resolution of $\SI{2.0}{\m \per pixel}$ yields
+poor results for every resolution of the local map.
+On the other hand, a global map with a resolution of $\SI{1.0}{\m \per pixel}$
+has the possibility to yield a high score only when the resolution of
+the local map is high enough.
 
-\begin{figure}
+\begin{figure}[h!]
     \centering
-    \includegraphics[scale=0.4,draft]{high_level_design_diagram}
-    % \includegraphics[scale=0.4]{map_resolutions}
-    \caption[Name]{
-        Description
-    }
-    \label{fig:map_resolutions}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[scale=0.175]{global_resolution_1}
+        \caption{}
+        \label{fig:global_resolution_1}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[scale=0.175]{global_resolution_2}
+        \caption{}
+        \label{fig:global_resolution_2}
+    \end{subfigure}%
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[scale=0.175]{global_resolution_3}
+        \caption{}
+        \label{fig:global_resolution_3}
+    \end{subfigure}
+    \caption[Global map resolution comparison]{Comparison of global gradient
+        map resolution.
+        (a) Resolution of $\SI{0.5}{\m \per pixel}$.
+        (b) Resolution of $\SI{1.0}{\m \per pixel}$.
+        (c) Resolution of $\SI{2.0}{\m \per pixel}$.
+        }
+    \label{fig:global_map_resolution}
 \end{figure}
 
-% TODO: move this paragraph to Conclusion
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{| c | c || c |}
+        \hline
+        Local map & Global map & Matching \\
+        resolution & resolution & score \\
+        \hline
+        \hline
+        0.1 & 0.5 & $97\%$ \\
+        \hline
+        0.1 & 1.0 & $76\%$ \\
+        \hline
+        0.1 & 2.0 & $48\%$ \\
+        \hline
+        \hline
+        0.2 & 0.5 & $91\%$ \\
+        \hline
+        0.2 & 1.0 & $67\%$ \\
+        \hline
+        0.2 & 2.0 & $32\%$ \\
+        \hline
+        \hline
+        0.5 & 0.5 & $72\%$ \\
+        \hline
+        0.5 & 1.0 & $36\%$ \\
+        \hline
+        0.5 & 2.0 & $25\%$ \\
+        \hline
+    \end{tabular}
+    \caption[Local and global map resolution viability]{
+        Score of match for combinations of local and global map resolutions.
+    }
+    \label{table:map_resolutions}
+\end{table}
+
 Although the size and resolution of the local map are parameters that we
 determine, they are highly limited by the on board processing power of the
 robot, since the higher the resolution the more computations must be performed.
