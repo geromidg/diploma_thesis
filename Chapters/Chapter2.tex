@@ -1,6 +1,6 @@
 \label{Chapter2}
 
-\chapter{GA SLAM}
+\chapter{Globally Adaptive SLAM}
 
 \section{System Overview} \label{system_overview}
 
@@ -56,13 +56,13 @@ In Figure \ref{fig:HLD}, the high-level design diagram of the system shows
 the 4 main modules that comprise the entire system.
 Their functionality is explained in the following sections of this chapter.
 
-\begin{figure}
+\begin{figure}[h!]
     \centering
     \includegraphics[scale=0.4]{high_level_design_diagram}
     \decoRule
-    \caption[High Level Design Diagram]{
-        The high-level design diagram showing the submodules that comprise
-        the system as well as the data flow.}
+    \caption[High level design diagram]{
+        The high-level design diagram of the GA SLAM system.
+    }
     \label{fig:HLD}
 \end{figure}
 
@@ -142,10 +142,6 @@ that consists of the following four steps:
         in that position.
         This method is called \textit{voxelization} and results in a more
         sparse cloud of 3D points.
-        % However, the larger the voxels are, the less precise the
-        % representation of the space becomes.
-
-        % TODO: Add equation for voxelization
         % TODO(ref): voxelization
 
     \item \textbf{Transformation}:
@@ -287,7 +283,6 @@ This means that the map consists of two layers
     \item the layer of \textit{mean} elevation $(\mu_z)$ and
     \item the layer of elevation \textit{variance} $(\sigma^2_z)$
 \end{itemize}
-% TODO: Add the two translation variance layers
 
 Apart from its structure, a map is also characterized by a few other
 properties.
@@ -813,14 +808,14 @@ The proposed algorithm consists of the following three steps:
 
 \begin{itemize}
     \item \textbf{Preprocessing} \\
-        Template matching requires the two images to be of the same resolution.
+        Template matching requires the two images to be of the same
+        resolution.
         Since, as we mentioned earlier, the global image (source image) has a
-        lower resolution than the local image (template image), it is necessary
-        to downsample the local one to match the resolution of the global.
+        lower resolution than the local image (template image),
+        it is necessary to downsample the local one to match the resolution
+        of the global.
         To achieve this, we scale the template image with the local to global
         resolution ratio using a nearest-neighbor interpolation method.
-
-        % TODO: add figure of downsampled local map
 
         As we discussed in the implementation of the Pose Estimation component
         (Section \ref{pose_estimation}), the long-term drift of the $z$
@@ -874,8 +869,8 @@ The proposed algorithm consists of the following three steps:
         in the next step.
 
     \item \textbf{Matching} \\
-        A drawback of template matching compared to feature matching is that it
-        cannot match rotated images, and therefore it cannot find a
+        A drawback of template matching compared to feature matching is that
+        it cannot match rotated images, and therefore it cannot find a
         $yaw$ correction in the robot's global pose.
         To overcome this limitation, we warp (rotate) the template image
         in a discrete angle space, e.g. from \ang{-10} to \ang{10} with
