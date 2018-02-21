@@ -82,7 +82,7 @@ The map is the model of the environment and can represent information about
 it in either two or three dimensions.
 In addition, the information a map represents can be organized either in
 a grid-based manner (volumetric map) or in the form of landmarks
-(feature-based map).
+(feature-based map) \parencite{Jefferies2008}.
 Volumetric maps provide a more detailed and precise model of the environment
 compared to feature-based maps and are, therefore, the better choice for
 robots that aim to solve navigation tasks.
@@ -91,31 +91,25 @@ require a 3D model as a means to safely avoid the terrain's obstacles.
 Robotic applications with this requirement include outdoor, underwater,
 airborne or planetary missions.
 
-% TODO(ref): mapping and classification
-
 As we have already mentioned, planetary rovers have an important constraint
 in on-board computational power.
 This limitation deems the use of pure 3D maps inappropriate.
 To overcome this problem, we can represent the environment with a 2.5D map,
-known as elevation map.
+known as elevation map \parencite{Cremean2005}.
 An elevation map is essentially a 2D grid-map composed of cells that hold
 the value of the terrain's elevation.
 It is important to note that this mapping method does not model completely
 the 3D environment, but can provide a sufficient approximation even for
 the most demanding applications.
 
-% TODO(ref): elevation map
-
 To make use of this mapping technique, a robot must be equipped with a
 sensor that is capable of providing measurements in the 3D space.
 Such measurements are usually stored in a structure called point cloud -
 a set of points $P$ that contain information about their position in
-space $(x,y,z)$.
+space $(x,y,z)$ \parencite{Rusu2011}.
 A point cloud can be constructed from sensors that provide depth information,
 with the most popular being stereo cameras, time-of-flight (ToF) cameras
 and LiDARs.
-
-% TODO(ref): point cloud
 
 In this section, the functionality of the Data Registration module will be
 explained.
@@ -141,14 +135,13 @@ that consists of the following four steps:
         and it therefore represents the existence or absence of an obstacle
         in that position.
         This method is called \textit{voxelization} and results in a more
-        sparse cloud of 3D points.
-        % TODO(ref): voxelization
+        sparse cloud of 3D points \parencite{Hinks2013}.
 
     \item \textbf{Transformation}:
         A point $P$ sampled from the sensor is in the sensor's reference frame
         $S$ and need to be transformed in the map's frame $M$ in order to be
         registered.
-        This is be achieved by
+        This is achieved by
         \begin{equation} \label{eq:point_cloud_tf}
             \mathbf{t}_{MP} =
                 \mathbf{R}_{SM} \mathbf{t}_{SP} -
@@ -216,7 +209,7 @@ that consists of the following four steps:
         $f : \mathbb{R}^3 \rightarrow \mathbb{R}$ is a non linear function.
 
         To obtain the variance value of the transformed point, we propagate
-        the uncertainty of the initial point as
+        the uncertainty \parencite{Ochoa2006} of the initial point as
         \begin{equation}
             \sigma^2_z = \mathbf{\Sigma}^f =
             \mathbf{J} \ \mathbf{\Sigma}^{\mathbf{t}_{SP}} \
@@ -230,8 +223,6 @@ that consists of the following four steps:
             \mathbf{J} = \frac{\partial f}{\partial \mathbf{t}_{SP}} =
             \mathbf{P} \ \mathbf{R}_{SM}
         \end{equation}
-
-        % TODO(ref): uncertainty propagation
 
         The covariance matrix for a point in the point cloud is defined as
         \begin{equation}
@@ -255,9 +246,8 @@ that consists of the following four steps:
         $f$ is the field of view,
         $b$ is the baseline,
         $w$ is the horizontal resolution of the camera and
-        $d$ is the range of the point.
-
-        % TODO(ref): stereo uncertainty
+        $d$ is the range of the point
+        \parencite{Huesing2014}.
 \end{enumerate}
 
 % TODO: Add figure of point cloud pre and post processing
@@ -346,10 +336,10 @@ the sensor.
         as a one-dimensional Gaussian distribution.
         The last operation of the algorithm (Operation \ref{op:fuse}) is the
         actual fusion, and can be implemented with different methods.
-        A popular method is the one used in a Kalman filter, which given
-        two Gaussian distributions $\mathcal{N}(\mu_1, \ \sigma^2_1)$ and
+        A popular method is the one used in a Kalman filter
+        \parencite{Cremean2005}, which given two Gaussian distributions
+        $\mathcal{N}(\mu_1, \ \sigma^2_1)$ and
         $\mathcal{N}(\mu_2, \ \sigma^2_2)$, can be implemented as
-        % TODO(ref): kalman filter sensor fusion (see elevation mapping paper)
 
         \begin{equation}
             innovation = \mu_2 - \mu_1
@@ -408,18 +398,13 @@ the sensor.
 
 % TODO: add figures of input point cloud and its projection in the map
 
-\section{Data Fusion}
+\subsection{Sensor Fusion}
 
-The goal of this module is to fuse data from different sources and
+The goal of this submodule is to fuse data from different sources and
 increase the overall quality of the map.
 This is achieved by taking advantage the already computed uncertainty
 estimates in the map and applying fusion techniques to improve the
 existing data.
-In particular, we developed two submodules to perform fusion in separate
-stages of the pipeline.
-These are explained in the following sections.
-
-\subsection{Sensor Fusion}
 
 Using sensor fusion we can exploit the multiple sensors equipped in
 a robot to increase the covered area in the map.
@@ -447,23 +432,6 @@ have a detrimental effect in the navigation of the robot.
 
 % TODO: Add figure illustrating this point
 
-% \subsection{Neighborhood Fusion}
-
-% Explain what is neighborhood fusion and the steps
-    %\item increase map quality using the translation uncertainties
-
-% \bigskip
-% \noindent
-% For each cell of map:
-% \begin{enumerate}
-%     \item Compute a weight for every neighboor cell according to distance/variance
-%     \item Update mean/variance of cell using a weight-based fusion rule
-% \end{enumerate}
-
-% \noindent
-% Add equation for the weight calculation and the fusion rule\\
-% If visible, add figures showing the variance layers in the map, and the result of the fusion (prior and posterior mean elevation layers)
-
 \section{Pose Estimation} \label{pose_estimation}
 
 The pose, or state, of a robot navigating in a 3D environment, consists of
@@ -473,12 +441,11 @@ Hence, the goal of pose estimation, also referred to as relative localization,
 is to accurately track the robot's pose in the environment.
 This is usually accomplished by either employing a probabilistic filter,
 e.g. a Kalman filter or a particle filter, or by utilizing methods such
-as scan matching.
+as scan matching \parencite{Fox2001}.
 A filter's inputs are usually expressed in the form of position or velocity
 and can be extracted using odometry techniques.
 In comparison, the input of a scan matching method is by definition a
 scan, i.e. measurement, received by a sensor.
-% TODO(ref): filtering / scan matching
 For our case, we approached the localization problem by making use of a
 combination of scan matching and particle filtering techniques.
 
@@ -603,8 +570,7 @@ When a new point cloud measurement $z_t$ is received, the weight of each
 particle $p_i$ is updated using scan matching.
 In particular, for every particle, the input point cloud is matched with
 a point cloud extracted from the robot's local map using
-an \text{Iterative Closest Point} (ICP) variant.
-% TODO(ref): ICP
+an \text{Iterative Closest Point} (ICP) variant \parencite{Zhang1994}.
 
 For the purpose of achieving a fast convergence of the ICP,
 we first preprocess the inputs as such:
@@ -645,10 +611,9 @@ Therefore, the weight $w_i$ of a particle $p_i$ is calculated as
 The act of resampling the set of particles of the filter is done
 to ensure that the particle population models the
 uncertainty of the problem as close as possible.
-Although there are several variants that can be exploited to solve the
-resampling problem depending on the situation, we make use of a fairly
-common technique called multinomial resampling.
-% TODO(ref): resampling techniques
+Although there are several variants \parencite{Douc2005} that can be
+exploited to solve the resampling problem depending on the situation,
+we make use of a fairly common technique called multinomial resampling.
 
 Given a particle set of $N$ particles, a cumulative distribution is
 initially formed by normalizing the weight of each particle as
@@ -787,13 +752,13 @@ correspondence between the two.
 Popular approaches vary from simple and statistical-based ones such as
 comparing the histogram of the images to find similarities, to
 more complex and efficient ones such as template matching and feature
-matching. The former, template matching, is a method that convolves a search
+matching \parencite{Jayanthi2016}.
+The former, template matching, is a method that convolves a search
 image (template) with the one being searched into (source) and is usually
 used to find a smaller image in a bigger one.
 The latter, feature matching, is based on the idea of extracting a feature
 set from each image and comparing the two sets in order to find
 correspondences among them.
-% TODO(ref): image matching techniques
 
 Although feature matching is usually the most efficient method,
 it can be yield suboptimal results in scenarios where features are
@@ -882,9 +847,7 @@ The proposed algorithm consists of the following three steps:
         Then for each location of $T$ over $I$, the score is stored in a
         result matrix $R$.
         Consequently, the location in $R$ where the score is highest,
-        is the location of the best match.
-
-        % TODO(ref): template matching
+        is the location of the best match \parencite{Hashemi2016}.
 
         The metric used to compare the images, greatly influences the final
         result. The most popular metrics used are:

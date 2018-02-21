@@ -69,6 +69,7 @@ it is necessary to introduce certain metrics:
 \begin{itemize}
     \item \textbf{Mean square error (MSE) of pose graph}:
         This is a straightforward metric for benchmarking SLAM algorithms
+        \parencite{Kummerle2009}
         and can be defined as
         \begin{equation}
             \varepsilon_{MSE} (\hat{x}_{1:T}) = \frac{1}{T}
@@ -79,8 +80,6 @@ it is necessary to introduce certain metrics:
         $x_{1:T}$ is the ground truth pose graph,
         $T$ is the number of samples and
         $x_i \ominus x_j$ is the distance between two poses.
-
-        % TODO(ref): "On Measuring the Accuracy of SLAM Algorithms" paper
 
     \item \textbf{Root mean square deviation (RMSD) of pose graph}:
         Similarly to the MSE metric, this metric expresses the sample
@@ -477,5 +476,4 @@ As an example, the HiRISE on board camera of the
 $\SI{30}{\cm \per pixel}$ with the possibility to acquire stereo image pairs
 with a precision better than $\SI{25}{\cm \per pixel}$ over locations of
 high priority, i.e. potential landing site of future missions to Mars.
-% TODO(ref): HiRISE fact
 

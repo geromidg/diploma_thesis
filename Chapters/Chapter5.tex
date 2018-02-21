@@ -70,16 +70,15 @@ This can be achieved by sampling particles in a 2D grid that has the same
 resolution as the local map.
 As a result, particles that fall in the same cell of the grid are eliminated
 and are replaced by new particles.
-% TODO(ref): discretized PF
 
 Another direction for future work would be to exploit the uncertainty
 of the robot's pose to improve the quality of the local map.
-This can be accomplished by fusing nearby cells for each cell of the
+This can be accomplished using a neighborhood fusion method
+\parencite{Fankhauser2014} by fusing nearby cells for each cell of the
 map according to the variance of the robot's translation.
 The variance values could be extracted directly from the particle filter,
 by calculating the distribution of the particles, or by using the
 motion model of the robot.
-% TODO(ref): neighborhood fusion
 
 Finally, the global elevation map could be further utilized by using it
 to initialize the cells of the local map.

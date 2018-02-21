@@ -4,8 +4,8 @@
 
 \section{Planetary Rover Testbed} \label{hdpr_rover}
 
-In order to benchmark our system in real scenarios, we implemented the
-system in a testbed rover and integrated it with the rest of its components.
+In order to benchmark our system in real scenarios, we implemented it
+on a testbed rover and integrated it with the rest of its components.
 The rover we used is named Heavy Duty Planetary Rover (HDPR) and is
 capable of traversing different types of terrain with a speed of up to
 $\SI{1}{\m \per sec}$.
@@ -13,9 +13,10 @@ It was developed by the Automation and Robotics Lab (ARL/TEC-MMA) of the
 European Space Agency (ESA) and is currently used for validating
 software and hardware components in long range scenarios.
 
-The HDPR rover, depicted in Figure \ref{fig:hdpr_rover}, bears close
-resemblance to the camera setup of the ExoMars mission rover and allows the
-evaluation of algorithms that have a focus on autonomous navigation.
+The HDPR rover \parencite{Boukas2016}, depicted in Figure
+\ref{fig:hdpr_rover}, bears close resemblance to the camera setup of the
+ExoMars mission rover \parencite{Vago2017} and allows the evaluation
+of algorithms that have a focus on autonomous navigation.
 Specifically, the sensor suite of the rover comprises of the following
 components:
 
@@ -24,7 +25,7 @@ components:
     \includegraphics[scale=0.5]{hdpr_rover}
     \decoRule
     \caption[Heavy duty planetary rover]{
-        The Heavy duty planetary rover (HDPR).
+        The Heavy duty planetary rover (HDPR) \parencite{Boukas2016}.
     }
     \label{fig:hdpr_rover}
 \end{figure}
@@ -61,8 +62,6 @@ In addition, the Inertial Measurement Unit (IMU) provides measurements about
 the orientation and acceleration of the robot.
 Although the rest of the sensors are not actively used by our system,
 they can be exploited for validation purposes.
-
-% TODO(ref): HDPR paper
 
 \section{Overall System Architecture}
 
@@ -106,14 +105,13 @@ to slippage in outdoor environments, and more specifically planetary terrains.
 
 \subsection{Robotic Software Framework}
 
-The GA SLAM system was implemented as a framework-independent library for C++
-and depends only on libraries for linear algebra, point cloud processing
-and image processing.
-% TODO(ref): github repo
+The GA SLAM system \footnote{GA SLAM: \url{https://github.com/geromidg/GA_SLAM}}
+was implemented as a framework-independent library for C++ and depends only
+on libraries for linear algebra, point cloud processing and image processing.
 However, with the aim to provide integration with the rest of HDPR's
 software modules and tools, we developed a component to bridge
-the library using the Robot Construction Toolkit (ROCK).
-% TODO(ref): Rock website
+the library using the Robot Construction Toolkit (ROCK)
+\footnote{ROCK: \url{https://www.rock-robotics.org}}.
 
 ROCK is a software framework for the development of robotic systems,
 similar to Robot Operating System (ROS).
@@ -125,7 +123,7 @@ In addition, it contains a rich collection of reliable and extensible
 modules that are ready to use as well as tools for visualization and
 task monitoring.
 
-In ROCK, each distinct functionality of the system is
+In ROCK \parencite{Joyeux2011}, each distinct functionality of the system is
 encapsulated in an RTT component (Figure \ref{fig:rock_component}) using a
 tool called oroGen.
 This tool, auto-generates the C++ code of the component, given
@@ -149,16 +147,14 @@ of another component.
     \label{fig:rock_component}
 \end{figure}
 
-% TODO(ref): Rock paper
-
 \subsection{Orbiter Data Preprocessing}
 
 As a means to validate the map matching capabilities of the system,
 an orbiter (global) map is necessary.
-A real example of such map has beeen reconstructed using orbital imagery,
+A real example of such map has been reconstructed using orbital imagery,
 depicted in Figure \ref{fig:hirise_map}, that was captured using the
 High Resolution Imaging Science Experiment (HiRISE) camera mounted
-on NASA's Mars Reconnaissance Orbiter (MRO).
+on NASA's Mars Reconnaissance Orbiter (MRO) \parencite{Gallagher2005}.
 
 It is possible to emulate an orbiter map using drone imagery.
 The aerial images can then be used to reconstruct and provide a 3D
@@ -190,6 +186,4 @@ This is achieved in 4 steps:
         filter which rejects points that are far from their neighbors
     \item transform the voxel grid to the robot's initial absolute pose.
 \end{enumerate*}
-
-% TODO: add figures of orbiter point cloud and the orbiter map
 
