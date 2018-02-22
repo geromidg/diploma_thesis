@@ -1,0 +1,36 @@
+\begin{abstract}%
+
+Rover autonomy is of paramount significance in a planetary exploration
+mission, since low supervision from the ground station can directly
+increase the scientific outcomes.
+However, the autonomous long range navigation of robotic vehicles
+raises several challenges, especially in such context where the
+communication to Earth is limited.
+An essential skill such vehicle must possess in order to navigate in
+an unknown environment safely is the accurate perception of its surroundings.
+
+This thesis proposes an approach for real-time Simultaneous Localization and
+Mapping (SLAM) in extreme terrains, that takes into account the limited
+computational resources of planetary rovers.
+By employing scan matching, particle filter and elevation mapping techniques,
+we construct a system that is able to provide an accurate pose estimation
+and a high resolution representation of the environment which can be
+utilized for navigation purposes.
+
+Moreover, the current thesis addresses the problem of absolute localization
+that emerges due to the accumulated drift in position and orientation.
+Building upon existing image matching techniques, we formulate a novel
+method that is capable of locating a local (robot-centric) map
+in an a priori global map with the aim to correct the robot's pose in
+a global reference frame.
+Additionally, the developed matching technique is evaluated against possible
+local and global map resolution values so as to provide a baseline
+for future applications.
+
+Finally, we implement and integrate our approach on a planetary rover
+testbed as a means to validate the performance of the unified system.
+The experimental validation is performed in long range scenarios in
+a terrain that bears close resemblance to a planetary one.
+
+\end{abstract}
+

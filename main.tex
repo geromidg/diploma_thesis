@@ -18,9 +18,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%----------------------------------------------------------------------------------------
-%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
-%----------------------------------------------------------------------------------------
+%%%%%%% PACKAGES AND OTHER DOCUMENT CONFIGURATIONS %%%%%%%
 
 \documentclass[
 11pt, % The default document font size, options: 10pt, 11pt, 12pt
@@ -87,23 +85,19 @@ consistentlayout, % Uncomment to change the layout of the declaration, abstract 
 
 \usepackage{makecell}
 
-%----------------------------------------------------------------------------------------
-%	MARGIN SETTINGS
-%----------------------------------------------------------------------------------------
+%%%%%%% MARGIN SETTINGS %%%%%%%
 
 \geometry{
-	paper=a4paper, % Change to letterpaper for US letter
-	inner=2.5cm, % Inner margin
-	outer=3.8cm, % Outer margin
-	bindingoffset=.5cm, % Binding offset
-	top=1.5cm, % Top margin
-	bottom=1.5cm, % Bottom margin
-	%showframe, % Uncomment to show how the type block is set on the page
+    paper=a4paper, % Change to letterpaper for US letter
+    inner=2.5cm, % Inner margin
+    outer=3.8cm, % Outer margin
+    bindingoffset=.5cm, % Binding offset
+    top=1.5cm, % Top margin
+    bottom=1.5cm, % Bottom margin
+    %showframe, % Uncomment to show how the type block is set on the page
 }
 
-%----------------------------------------------------------------------------------------
-%	THESIS INFORMATION
-%----------------------------------------------------------------------------------------
+%%%%%%% THESIS INFORMATION %%%%%%%
 
 \thesistitle{Globally Adaptive SLAM for Autonomous Planetary Rovers using Map Matching} % Your thesis title, this is used in the title and abstract, print it elsewhere with \ttitle
 \supervisor{
@@ -128,256 +122,33 @@ consistentlayout, % Uncomment to change the layout of the declaration, abstract 
 \hypersetup{pdfkeywords=\keywordnames} % Set the PDF's keywords to your keywords
 }
 
+%%%%%%% PREAMBLE %%%%%%%
 \begin{document}
 
 \frontmatter % Use roman page numbering style (i, ii, iii, iv...) for the pre-content pages
 
 \pagestyle{plain} % Default to the plain heading style until the thesis style is called for the body content
 
-%----------------------------------------------------------------------------------------
-%	TITLE PAGE
-%----------------------------------------------------------------------------------------
+\include{Chapters/Title}
+\include{Chapters/Abstract}
+\include{Chapters/Acknowledgements}
 
-\begin{titlepage}
-\begin{center}
+\tableofcontents
+\listoffigures
+\listoftables
+\listofalgorithms
+\addchaptertocentry{\abstractname}
+\addchaptertocentry{\acknowledgementname}
 
-\vspace*{.02\textheight}
-
-\begin{tabular}{cc}
-    \makecell[c]{\includegraphics[scale=0.17]{university_logo}} &
-    \makecell[c]{
-        \scshape\large Aristotle University of Thessaloniki \\
-        \scshape\large Faculty of Engineering \\
-        % \vspace{0.05cm}
-        \large School of Electrical and Computer Engineering \\
-        \large Department of Electronics and Computers \\
-    }
-\end{tabular}
-
-\vspace{2.0cm}
-
-% \textsc{\Large Diploma Thesis}\\[0.5cm]
-
-\HRule \\[0.4cm]
-{\huge \bfseries \ttitle\par}\vspace{0.4cm}
-\HRule \\[1.5cm]
-
-\begin{minipage}[t]{0.5\textwidth}
-\begin{flushleft} \large
-\emph{Author:}\\ {\authorname}
-\end{flushleft}
-\end{minipage}
-\begin{minipage}[t]{0.49\textwidth}
-\begin{flushright} \large
-\emph{Supervisors:} \\
-{
-    Assoc. Prof. Loukas \textsc{Petrou}\textsuperscript{1} \\
-    Dr. Emmanouil \textsc{Tsardoulias}\textsuperscript{1} \\
-    Martin \textsc{Azkarate}\textsuperscript{2} \\
-    \vspace{0.3cm}
-    \textsuperscript{1}\textit{Aristotle University of Thessaloniki} \\
-    \textsuperscript{2}\textit{European Space Agency}
-}
-\end{flushright}
-\end{minipage}\\[1.5cm]
-
-\vfill
-
-\large \textit{
-    A thesis submitted to the \facname\ in\\
-    partial fulfillment of the requirements for the degree of
-}\\
-[0.5cm]
-Diploma\\ in\\ Electrical and Computer Engineering\\
-[1.5cm]
-
-\vfill
-
-{\large Thessaloniki,\\February 2018}\\[4cm]
-
-\vfill
-
-\end{center}
-\end{titlepage}
-
-%----------------------------------------------------------------------------------------
-%	DECLARATION PAGE
-%----------------------------------------------------------------------------------------
-
-% \begin{declaration}
-% \addchaptertocentry{\authorshipname} % Add the declaration to the table of contents
-% \noindent I, \authorname, declare that this thesis titled, \enquote{\ttitle} and the work presented in it are my own. I confirm that:
-
-% \begin{itemize} 
-% \item This work was done wholly or mainly while in candidature for a research degree at this University.
-% \item Where any part of this thesis has previously been submitted for a degree or any other qualification at this University or any other institution, this has been clearly stated.
-% \item Where I have consulted the published work of others, this is always clearly attributed.
-% \item Where I have quoted from the work of others, the source is always given. With the exception of such quotations, this thesis is entirely my own work.
-% \item I have acknowledged all main sources of help.
-% \item Where the thesis is based on work done by myself jointly with others, I have made clear exactly what was done by others and what I have contributed myself.
-% \end{itemize}
- 
-% \noindent Signed:\\
-% \rule[0.5em]{25em}{0.5pt} % This prints a line for the signature
- 
-% \noindent Date:\\
-% \rule[0.5em]{25em}{0.5pt} % This prints a line to write the date
-% \end{declaration}
-
-% \cleardoublepage
-
-%----------------------------------------------------------------------------------------
-%	QUOTATION PAGE
-%----------------------------------------------------------------------------------------
-
-% \vspace*{0.2\textheight}
-
-% \noindent\enquote{\itshape Thanks to my solid academic training, today I can write hundreds of words on virtually any topic without possessing a shred of information, which is how I got a good job in journalism.}\bigbreak
-
-% \hfill Dave Barry
-
-%----------------------------------------------------------------------------------------
-%	ABSTRACT PAGE
-%----------------------------------------------------------------------------------------
-
-\begin{abstract}
-\addchaptertocentry{\abstractname}%
-Rover autonomy is of paramount significance in a planetary exploration
-mission, since low supervision from the ground station can directly
-increase the scientific outcomes.
-However, the autonomous long range navigation of robotic vehicles
-raises several challenges, especially in such context where the
-communication to Earth is limited.
-An essential skill such vehicle must possess in order to navigate in
-an unknown environment safely is the accurate perception of its surroundings.
-
-This thesis proposes an approach for real-time Simultaneous Localization and
-Mapping (SLAM) in extreme terrains, that takes into account the limited
-computational resources of planetary rovers.
-By employing scan matching, particle filter and elevation mapping techniques,
-we construct a system that is able to provide an accurate pose estimation
-and a high resolution representation of the environment which can be
-utilized for navigation purposes.
-
-Moreover, the current thesis addresses the problem of absolute localization
-that emerges due to the accumulated drift in position and orientation.
-Building upon existing image matching techniques, we formulate a novel
-method that is capable of locating a local (robot-centric) map
-in an a priori global map with the aim to correct the robot's pose in
-a global reference frame.
-Additionally, the developed matching technique is evaluated against possible
-local and global map resolution values so as to provide a baseline
-for future applications.
-
-Finally, we implement and integrate our approach on a planetary rover
-testbed as a means to validate the performance of the unified system.
-The experimental validation is performed in long range scenarios in
-a terrain that bears close resemblance to a planetary one.
-\end{abstract}
-
-%----------------------------------------------------------------------------------------
-%	ACKNOWLEDGEMENTS
-%----------------------------------------------------------------------------------------
-
-% \begin{acknowledgements}
-% \addchaptertocentry{\acknowledgementname} % Add the acknowledgements to the table of contents
-% The acknowledgments and the people to thank go here, don't forget to include your project advisor\ldots
-% \end{acknowledgements}
-
-%----------------------------------------------------------------------------------------
-%	LIST OF CONTENTS/FIGURES/TABLES PAGES
-%----------------------------------------------------------------------------------------
-
-\tableofcontents % Prints the main table of contents
-
-\listoffigures % Prints the list of figures
-
-\listoftables % Prints the list of tables
-
-\listofalgorithms % Print the list of algorithms
-
-%----------------------------------------------------------------------------------------
-%	ABBREVIATIONS
-%----------------------------------------------------------------------------------------
-
-\begin{abbreviations}{ll} % Include a list of abbreviations (a table of two columns)
-
-% \textbf{ABR} & Abbreviation \\
-\textbf{GA} & Globally Adaptive \\
-\textbf{SLAM} & Simultaneous Localization And Mapping \\
-\textbf{DEM} & Digital Elevation Map \\
-\textbf{ICP} & Iterative Closest Point \\
-\textbf{KF} & Kalman Filter \\
-\textbf{PF} & Particle Filter \\
-\textbf{PC} & Point Cloud \\
-\textbf{SOR} & Statistical Outlier Removal \\
-\textbf{CV} & Computer Vision \\
-\textbf{TM} & Template Matching \\
-\textbf{SDD} & Sum of Square Difference \\
-\textbf{CCORR} & Cross Correlation \\
-\textbf{CCOEFF} & Correlation Coefficient \\
-\textbf{ROCK} & Robot Construction Kit \\
-\textbf{RTT} & Real Time Toolkit \\
-\textbf{ROS} & Robot Operating System \\
-\textbf{ESA} & European Space Agency \\
-\textbf{NASA} & National Aeronautics and Space Administration \\
-\textbf{HIRISE} & High Resolution Imaging Science Experiment \\
-\textbf{HDPR} & Heavy Duty Planetary Rover \\
-\textbf{GPS} & Global Positioning System \\
-\textbf{TOF} & Time Of Flight \\
-\textbf{LIDAR} & Light Detection And Ranging \\
-\textbf{IMU} & Inertial Measurement Unit \\
-\textbf{SIL} & Software In the Loop \\
-\textbf{MSE} & Mean Square Error \\
-\textbf{RMSD} & Root Mean Square Deviation \\
-
-\end{abbreviations}
-
-%----------------------------------------------------------------------------------------
-%	PHYSICAL CONSTANTS/OTHER DEFINITIONS
-%----------------------------------------------------------------------------------------
-
-%\begin{constants}{lr@{${}={}$}l} % The list of physical constants is a three column table
-
-% The \SI{}{} command is provided by the siunitx package, see its documentation for instructions on how to use it
-
-%Speed of Light & $c_{0}$ & \SI{2.99792458e8}{\meter\per\second} (exact)\\
-%Constant Name & $Symbol$ & $Constant Value$ with units\\
-
-%\end{constants}
-
-%----------------------------------------------------------------------------------------
-%	SYMBOLS
-%----------------------------------------------------------------------------------------
-
-% \begin{symbols}{lll} % Include a list of Symbols (a three column table)
-
-% $a$ & distance & \si{\meter} \\
-% $P$ & power & \si{\watt} (\si{\joule\per\second}) \\
-%Symbol & Name & Unit \\
-
-% \addlinespace % Gap to separate the Roman symbols from the Greek
-
-% $\omega$ & angular frequency & \si{\radian} \\
-
-% \end{symbols}
-
-%----------------------------------------------------------------------------------------
-%	DEDICATION
-%----------------------------------------------------------------------------------------
+\include{Chapters/Abbreviations}
 
 \dedicatory{\textit{Dedicated to Fi}}
 
-%----------------------------------------------------------------------------------------
-%	THESIS CONTENT - CHAPTERS
-%----------------------------------------------------------------------------------------
+%%%%%%% CHAPTERS %%%%%%%
 
 \mainmatter % Begin numeric (1,2,3...) page numbering
 
 \pagestyle{thesis} % Return the page headers back to the "thesis" style
-
-% Include the chapters of the thesis as separate files from the Chapters folder
-% Uncomment the lines as you write the chapters
 
 \include{Chapters/Chapter1}
 \include{Chapters/Chapter2}
@@ -385,25 +156,17 @@ a terrain that bears close resemblance to a planetary one.
 \include{Chapters/Chapter4}
 \include{Chapters/Chapter5}
 
-%----------------------------------------------------------------------------------------
-%	THESIS CONTENT - APPENDICES
-%----------------------------------------------------------------------------------------
+%%%%%%% APPENDICES %%%%%%%
 
 %\appendix % Cue to tell LaTeX that the following "chapters" are Appendices
-
-% Include the appendices of the thesis as separate files from the Appendices folder
-% Uncomment the lines as you write the Appendices
 
 %\include{Appendices/AppendixA}
 %\include{Appendices/AppendixB}
 %\include{Appendices/AppendixC}
 
-%----------------------------------------------------------------------------------------
-%	BIBLIOGRAPHY
-%----------------------------------------------------------------------------------------
+%%%%%%% BIBLIOGRAPHY %%%%%%%
 
 \printbibliography[heading=bibintoc]
 
-%----------------------------------------------------------------------------------------
+\end{document}
 
-\end{document}  
