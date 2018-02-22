@@ -45,6 +45,7 @@ consistentlayout, % Uncomment to change the layout of the declaration, abstract 
 
 \usepackage[backend=bibtex,style=authoryear,natbib=true]{biblatex} % Use the bibtex backend with the authoryear citation style (which resembles APA)
 
+\setlength\bibitemsep{0.5\baselineskip}
 \addbibresource{bibliography.bib} % The filename of the bibliography
 
 \makeatletter
@@ -83,6 +84,8 @@ consistentlayout, % Uncomment to change the layout of the declaration, abstract 
 
 \usepackage{subcaption}
 \captionsetup[subfigure]{labelfont=rm}
+
+\usepackage{makecell}
 
 %----------------------------------------------------------------------------------------
 %	MARGIN SETTINGS
@@ -139,8 +142,20 @@ consistentlayout, % Uncomment to change the layout of the declaration, abstract 
 \begin{center}
 
 \vspace*{.02\textheight}
-{\scshape\LARGE \univname\par}\vspace{4.0cm}
-% \includegraphics{Logo} % University/department logo - uncomment to place it
+
+\begin{tabular}{cc}
+    \makecell[c]{\includegraphics[scale=0.17]{university_logo}} &
+    \makecell[c]{
+        \scshape\large Aristotle University of Thessaloniki \\
+        \scshape\large Faculty of Engineering \\
+        % \vspace{0.05cm}
+        \large School of Electrical and Computer Engineering \\
+        \large Department of Electronics and Computers \\
+    }
+\end{tabular}
+
+\vspace{3.0cm}
+
 % \textsc{\Large Diploma Thesis}\\[0.5cm]
 
 \HRule \\[0.4cm]
@@ -166,7 +181,7 @@ consistentlayout, % Uncomment to change the layout of the declaration, abstract 
 }\\
 [1.0cm]
 Diploma\\ in\\ Electrical and Computer Engineering\\
-[2cm]
+[2.5cm]
 
 \vfill
 
