@@ -59,7 +59,6 @@ Their functionality is explained in the following sections of this chapter.
 \begin{figure}[h!]
     \centering
     \includegraphics[scale=0.7]{high_level_design_diagram}
-    \decoRule
     \caption[High level design diagram]{
         The high-level design diagram of the GA SLAM system.
     }
@@ -250,8 +249,6 @@ that consists of the following four steps:
         \parencite{Huesing2014}.
 \end{enumerate}
 
-% TODO: Add figure of point cloud pre and post processing
-
 \subsection{Registration}
 
 \subsubsection{Structure of Elevation Map} \label{map_structure}
@@ -325,8 +322,8 @@ the sensor.
         implemented as a two-dimensional circular buffer.
 
     \item \label{map_update} \textbf{Update} \\
-        This is the core step of the Data Registration module, since this
-        step implements the registration of the input point cloud into the map.
+        This is the core step of the Data Registration module, since it
+        implements the registration of the input point cloud into the map.
         The algorithm of the point cloud projection is shown in Algorithm
         \ref{alg:map_update}.
 
@@ -394,9 +391,31 @@ the sensor.
                 \EndFor
             \end{algorithmic}
         \end{algorithm}
-\end{itemize}
 
-% TODO: add figures of input point cloud and its projection in the map
+        An example point cloud and its projection (registration) in a
+        preexisting local elevation map is shown in Figure
+        \ref{fig:point_cloud_registration}.
+
+        \begin{figure}[t]
+            \centering
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.2]{point_cloud}
+                \caption{Point cloud to be registered}
+                \label{fig:point_cloud}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.4]{local_elevation_map}
+                \caption{Local elevation map after the registration}
+                \label{fig:local_elevation_map}
+            \end{subfigure}
+            \caption[Point cloud registration in the local elevation map]{
+                An example point cloud and the updated
+                local elevation map after the registration.}
+            \label{fig:point_cloud_registration}
+        \end{figure}
+\end{itemize}
 
 \subsection{Sensor Fusion}
 
@@ -418,8 +437,6 @@ as the input data is in the form of a point cloud, by simply updating the map
 and taking advantage of the uncertainty estimates that are calculated
 in the preprocessing of the point cloud.
 
-% TODO: Add figures of point clouds from different sensors and the resulting map from fusion
-
 A drawback of this technique is that large calibration errors and inaccuracies
 in the transformations $(\mathbf{t}_{SM}$ and $\mathbf{R}_{SM})$ between a
 sensor and the map can have the opposite effect i.e. deteriorate the map
@@ -429,8 +446,6 @@ since their correspondence in the map will be slightly different
 for each sensor.
 Errors like these can easily produce false negative obstacles and
 have a detrimental effect in the navigation of the robot.
-
-% TODO: Add figure illustrating this point
 
 \section{Pose Estimation} \label{pose_estimation}
 
@@ -491,9 +506,18 @@ Additionally, the uncertainty of each particle is modeled using
 a Gaussian distribution.
 Finally, $yaw$ measurements from the robot's IMU sensor are fused with the
 final estimate to provide more accurate measurements.
+Figure \ref{fig:particle_filter} illustrates the particle distribution around
+the robot.
 
-% TODO: add a figure showing the particle distribution around the robot
-% TODO: add a figure showing the 3D pose estimation compared to ground truth
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.4]{particle_filter}
+    \caption[Particle distribution around the robot]{
+        The particle cloud of the particle filter distributed around the
+        robot.
+    }
+    \label{fig:particle_filter}
+\end{figure}
 
 An activity diagram illustrating the algorithm's steps is shown in Figure
 \ref{fig:pose_estimation_activity_diagram}.
@@ -502,7 +526,6 @@ These steps are explained in detail in the following sections.
 \begin{figure}[h!]
     \centering
     \includegraphics[scale=0.7]{pose_estimation_activity_diagram}
-    \decoRule
     \caption[Pose estimation activity diagram]{
         Activity diagram of the pose estimation module.
     }
@@ -623,7 +646,6 @@ initially formed by normalizing the weight of each particle as
 where $w_i$ is the weight of a particle $p_i$ from the particle set.
 From the cumulative distribution, $N$ new particles are sampled
 uniformly while maintaining the state of each particle.
-% TODO: add figure showing the classic wheel
 
 It is obvious that particles which were associated with a high
 weight in the previous population have a higher chance of being selected.
@@ -735,8 +757,20 @@ the local one.
 Furthermore, in contrast to the local map which is always centered around
 the robot, the global map is referenced in the global frame, i.e. the
 same coordinate system as the robot's pose.
+Figure \ref{fig:local_and_global_maps} shows the local map overlaid on
+top of a patch of the global map.
 This enables us to match the two maps and apply the delta transformation
 to correct the drifted pose.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.25]{local_and_global_maps}
+    \caption[Local map overlaid on global map]{
+        The local (robot-centric) elevation map overlaid on top of a patch of
+        the global elevation map.
+    }
+    \label{fig:local_and_global_maps}
+\end{figure}
 
 \subsection{Global to Local Map Matching} \label{map_matching}
 
@@ -822,14 +856,34 @@ The proposed algorithm consists of the following three steps:
             G = \sqrt{G_x^2 + G_y^2}
         \end{equation}
 
-        % TODO: add figures of gradient of tmeplate/source images
-
         Finally, we replace unknown cell values, i.e. cells that do not
         contain an elevation value, with zero since the matching
         method we use cannot handle unknown values. It is also possible
         to mask these values during matching. In any case, zero values
         do not contribute to the outcome of the match as it is explained
         in the next step.
+        Figure \ref{fig:elevation_and_gradient_images} depicts the elevation
+        image (map) as well as its gradient image.
+
+        \begin{figure}[t]
+            \centering
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.25]{elevation_image}
+                \caption{Raw elevation image}
+                \label{fig:elevation_image}
+            \end{subfigure}%
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.25]{gradient_image}
+                \caption{Gradient of elevation image}
+                \label{fig:gradient_image}
+            \end{subfigure}
+            \caption[Raw elevation and gradient images]{
+                The raw elevation image of the map and its gradient
+                after applying the Sobel operator.}
+            \label{fig:elevation_and_gradient_images}
+        \end{figure}
 
     \item \textbf{Matching} \\
         A drawback of template matching compared to feature matching is that
@@ -848,6 +902,22 @@ The proposed algorithm consists of the following three steps:
         result matrix $R$.
         Consequently, the location in $R$ where the score is highest,
         is the location of the best match \parencite{Hashemi2016}.
+        An example result matrix of template matching is shown in
+        Figure \ref{fig:template_matching_result_matrix}.
+        A white pixel value corresponds to a perfect match of the template
+        image at that location and a black pixel value is interpreted as
+        no match.
+
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[scale=0.4]{template_matching_result_matrix}
+            \caption[Template matching result matrix]{
+                An example result matrix of template matching.
+                White pixel values correspond to a perfect match of
+                the template image at that location.
+            }
+            \label{fig:template_matching_result_matrix}
+        \end{figure}
 
         The metric used to compare the images, greatly influences the final
         result. The most popular metrics used are:
@@ -900,12 +970,6 @@ The proposed algorithm consists of the following three steps:
         1 being a perfect match. Using that, we can provide certain guarantees
         to the matching by selecting the best match only when the score is
         above a specific threshold (e.g. 95\%).
-
-        % TODO: add figures of:
-            % source global/local maps in the scene (3D)
-            % source global/local maps in 2D
-            % result image of matching with rectangles indicating
-            %   the match & the ground truth match
 
     \item \textbf{Correction} \\
         The last step consists of converting the position $(x, y)$ of the match
@@ -1002,6 +1066,4 @@ The threshold compared to the total gradient value is a parameter that mainly
 depends on the morphological characteristics of the terrain.
 Furthermore, it should be tuned according to the resolution of the local
 map since the sum of the map's gradients is proportional to the map's scale.
-
-% TODO: add figures of final slope maps that succeed/fail the criterion
 
