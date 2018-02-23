@@ -102,62 +102,24 @@ perform localization.
 Nevertheless, both tasks usually need to be performed simultaneously:
 in this case we speak of Simultaneous Localization and Mapping (SLAM).
 
-SLAM problems can be distinguished in several ways:
+SLAM problems can be distinguished in several ways \parencite{Jefferies2008}:
 \begin{itemize}
-    \item \textbf{Volumetric versus feature-based}: In volumetric SLAM,
-        the map is sampled at a resolution high enough to allow for
-        photo-realistic reconstruction of the environment.
-        The map in volumetric SLAM is usually quite high-dimensional,
-        with the result that the computation can be quite involved.
-        Feature-based SLAM extracts sparse features from the sensor stream.
-        The map is then only comprised of features.
-        Feature-based SLAM techniques tend to be more efficient,
-        but their results may be inferior to volumetric SLAM due to the
-        fact that the extraction of features discards information
-        in the sensor measurements.
-    \item \textbf{Topological versus metric}: Some mapping techniques recover
-        only a qualitative description of the environment, which
-        characterizes the relation of basic locations.
-        Such methods are known as topological.
-        A topological map might be defined over a set of distinct places
-        and a set of qualitative relations between these places.
-        Metric SLAM methods provide metric information between the
-        relation of such places.
-    \item \textbf{Known versus unknown correspondence}: The correspondence
-        problem is the problem of relating the identity of sensed objects
-        to other sensed objects.
-        The problem of estimating the correspondence is known as
-        data association problem.
-        It is one of the most difficult problems in SLAM.
-    \item \textbf{Static versus dynamic}: Static SLAM algorithms assume
-        that the environment does not change over time.
-        Dynamic methods allow for changes in the environment.
-        The vast literature of SLAM methods assumes static environments.
-        Dynamic effects are often treated just as measurement outliers.
-        Methods that reason about motion in the environment are more involved,
-        but they tend to be more robust in more applications.
-    \item \textbf{Small versus large uncertainty}: SLAM problems are
-        distinguished by the degree of location uncertainty they can handle.
-        The most simple SLAM algorithms allow only for small errors is the
-        location estimate.
-        They are good in situations where a robot goes down a path that
-        does not intersect itself, and then returns along the same path.
-        In many environments it is possible to reach the same location
-        from multiple directions.
-        Here the robot may accumulate a large amount of uncertainty.
-        This problem is known as the "loop closing problem".
-        When closing a loop, the uncertainty may be large.
-        The ability to close loops is a key characteristic of modern-day
-        SLAM algorithms.
-        The uncertainty can be reduced if the robot can sense information
-        about its position in some absolute coordinate frame, e.g.,
-        through the use of a satellite-based global positioning receiver (GPS).
-    \item \textbf{Active versus passive}: In passive SLAM algorithms,
-        some other entity controls the robot and the SLAM algorithm is
-        purely observing.
-        The vast majority of algorithms are of this type;
-        they give the robot designer the freedom to implement arbitrary
-        motion controllers and pursue arbitrary motion objectives.
+    \item \textbf{Volumetric versus feature-based}:
+        Volumetric SLAM allows a realistic reconstruction of the environment,
+        since the map is high-dimensional and sampled at a high resolution.
+        In feature-based SLAM, the map is comprised of sparse features
+        that are extracted from the sensors.
+        Although featured-based techniques tend to be more efficient,
+        they are not commonly used in autonomous navigation tasks.
+    \item \textbf{Static versus dynamic}:
+        Static SLAM algorithms make the assumption that the environment
+        does not change during separate observations in time.
+        In contrast, dynamic SLAM approaches assume an environment that
+        can contain moving objects and usually treat them as
+        measurement outliers.
+    \item \textbf{Active versus passive}:
+        In passive SLAM algorithms, the SLAM algorithm cannot affect the
+        movement of the robot and is purely observing.
         In active SLAM, the robot actively explores its environment in
         the pursuit of an accurate map.
         Active SLAM methods tend to yield more accurate maps in less time,
@@ -165,50 +127,68 @@ SLAM problems can be distinguished in several ways:
         There exist also hybrid techniques in which the SLAM algorithm
         controls only the pointing direction of the robot's sensors,
         but not the motion direction.
-    \item \textbf{Single robot versus multi-robot}: Most SLAM problems are
-        defined for a single robot platform, although recently the problem
-        of multi-robot exploration has gained in popularity.
-        In some, robots get to observe each other, in others,
-        robots are told their relative locations.
-    \item \textbf{Full vs online} In the full-SLAM problem the entire path
-        is calculated and the map is constructed after data acquisition
-        is done, while in the online-SLAM the previous poses are a
+    \item \textbf{Full vs online}:
+        Full-SLAM approaches calculate the entire path and construct the
+        map as soon as the data acquisition is completed.
+        Online-SLAM, on the other hand, assumes that the previous poses are a
         continuous estimate and a map is built on the fly.
-        Both approaches have their own merits.
-        Full-SLAM can be said to be easier, as the data only needs to be
-        processed and often no real-time requirements needs to be fulfilled,
-        while the online-SLAM is more useful if the map is also
-        incorporated in the robot navigation system.
+        Although full-SLAM techniques are easier to implement, online-SLAM
+        is more useful since the localization and mapping can be used in
+        real-time.
 \end{itemize}
 
-Popular approximate solution methods include particle filters, extended
-Kalman filters (EKF), and graph-based solutions.
+As such, an autonomous planetary rover would require an online and volumetric
+SLAM method to fulfill its navigation tasks and could also safely assume a
+static environment.
+Depending on its exploration capabilities, an active or passive method
+could be selected.
 
-Particle filters or Sequential Monte Carlo (SMC) filters, are a set of
-genetic type statistical approaches to solving the filtering problem.
+In order to solve the SLAM problem, many approximate solution methods
+have been developed.
+These include probabilistic approaches, such as particle filters or extended
+Kalman filters (EKF), optimization approaches, such as graph-based solutions,
+as well as scan matching techniques.
+
+Particle filters or Sequential Monte Carlo (SMC) filters
+\parencite{Doucet2001, Murphy1999}, are a set of genetic type statistical
+approaches to solving the filtering problem.
 The particle filter is a tool for tracking the state of a dynamic system,
 even when the state is not fully observable.
 Particle filters is in practice a Bayes filter that uses a prediction
 and update cycle to estimate the state of a dynamical system from
 sensor measurements, and has similar applications as the Kalman filter,
-but handles large dimensionality better.
+but handles large dimensionality better \parencite{Thrun2005}.
 
 Interestingly this approach can be used to solve both the online and
 full-SLAM problem simultaneously using a grid-map based approach.
-Particle filters has become one of the most popular approaches to
+Particle filters has become one of the most common approaches to
 solving the SLAM problem in modern robotics.
+Popular algorithms include FastSLAM \parencite{Montemerlo2002} which
+uses a class of particle filters called Rao-Blackwellized particle filters
+(RBPFs) \parencite{Doucet2000, Murphy2001} and GMapping
+\parencite{Grisettiyz2005} which uses a combination of particle filters
+and scan matching.
+
+Scan matching is one of the oldest and easiest to implement method used
+to solve the SLAM problem using Occupancy Grid Maps (OGM) - maps that
+represent the continuous space using a discrete uniform grid.
+In scan matching, the position of the robot is calculated by matching,
+i.e. computing the transformation, between the current and previous
+sensor scans.
+Based on this concept, numerous implementations and variations have
+been developed due to its simplicity \parencite{Rusinkiewicz2001, Brenna2008}.
 
 Another popular approach for feature based maps is the Extended Kalman Filter,
 which applies the EKF to online-SLAM using maximum likelihood data association.
 The EKF assumes the noise to be Gaussian for motion and perception.
-EKF integrates out the robots pose as the robot moves, and therefore only
-keeps track of the current pose.
+EKF integrates out the robot's pose as the robot moves, and therefore only
+keeps track of the current pose \parencite{Thrun2005}.
 
 Finally, the full-SLAM problem can be solved using graph based approaches
 such as Graph-SLAM.
 In Graph-SLAM the robot poses are represented as a graph where the
 nodes correspond to the poses of the robot at different points in time,
-and the edges represent constraints between the poses.
+and the edges represent constraints between the poses \parencite{Thrun2005}.
 The latter are obtained from observations of the environment or from
 movement actions carried out by the robot.
 The whole problems boil down to solving a large optimization problem.
@@ -229,7 +209,7 @@ global and local maps.
 
 Skyline based methods attempt to estimate the global position of a rover
 by matching the skyline of the horizon, with skylines extracted from
-the global map \parencite{Stein1992} \parencite{Cozman1997}.
+the global map \parencite{Stein1992, Cozman1997}.
 The VIPER algorithm \parencite{Cozman2000} is a global localization
 algorithm that is matching the horizon skyline signature captured by a
 panoramic picture acquired by the rover to predicted skylines signatures
