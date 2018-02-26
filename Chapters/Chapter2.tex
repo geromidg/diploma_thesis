@@ -20,10 +20,9 @@ which is based around two layers of data processing.
 In the first tier, the objective is to perceive the environment and
 capture its 3D structure so as to enable the robot to navigate in it.
 This is achieved by constructing a local map and estimating the robot's
-current pose (position and orientation) w.r.t. its initial pose,
+current pose (position and orientation) with respect to its initial pose,
 using sensory inputs and odometry data.
-This process is commonly known as
-\textit{Simultaneous Localization And Mapping} (SLAM) and can be expressed as
+This process is commonly known as SLAM and can be expressed as
 \begin{equation}
     p(x_{0:T} ,\ m_{1:T} \ | \ z_{1:T} ,\ u_{1:T})
 \end{equation}
@@ -52,8 +51,8 @@ position of the robot's local map inside a global map.
 The separation of the system to two layers comes from the need to process the
 data in separate moments, depending on the conditions of the environment as
 well as on the robot's processing capabilities.
-In Figure \ref{fig:HLD}, the high-level design diagram of the system shows
-the 4 main modules that comprise the entire system.
+In Figure \ref{fig:high_level_design_diagram}, the high-level design diagram
+of the system shows the main modules that comprise the entire system.
 Their functionality is explained in the following sections of this chapter.
 
 \begin{figure}[h!]
@@ -62,13 +61,13 @@ Their functionality is explained in the following sections of this chapter.
     \caption[High level design diagram]{
         The high-level design diagram of the GA SLAM system.
     }
-    \label{fig:HLD}
+    \label{fig:high_level_design_diagram}
 \end{figure}
 
 \section{Data Registration}
 
 An integral aspect of a robotic system, is the mapping process.
-In the previous chapter (Section \ref{system_overview}) this processed
+In the previous chapter (Section \ref{system_overview}) this process
 was expressed as
 \begin{equation}
     p(m_{1:T} \ | \ x_{0:T} ,\ z_{1:T})
@@ -159,7 +158,7 @@ that consists of the following four steps:
         volume of the cloud by discarding (cropping) points that fall out
         of the map.
         This is done by defining a box in space and removing
-        from the point set all the points that are not inside it.
+        from the point set all the points that are not contained in it.
         In our case, we define the minimum and maximum cutoff points that
         represent the diagonal of the crop box as
         \begin{equation}
@@ -179,11 +178,11 @@ that consists of the following four steps:
         \end{aligned}
         \end{equation}
         where
-        $l_x$ and $l_y$ are the lengths of the map in meters in the
+        $l_x$ and $l_y$ are the dimensions of the map in meters in the
         x and y axis,
-        $t_x$ and $t_y$ are the positions of the map in meters in the
-        x and y axis and
-        $z_{min}$ and $z_{max}$ are the minimum and maximum elevation
+        $t_x$ and $t_y$ represent the translation of the map in meters in the
+        x and y axis of the global coordinate system and
+        $z_{min}$ and $z_{max}$ are the minimum and maximum elevation values
         of the map.
 
     \item \textbf{Uncertainty calculation}:
@@ -254,11 +253,11 @@ that consists of the following four steps:
 \subsubsection{Structure of Elevation Map} \label{map_structure}
 
 The elevation map, also referred to as \textit{local map} or simply
-\textit{map}, is a robot-centric grid-based map.
+\textit{map}, is a robot-centric metric map.
 This means that it is centered in the robot's position in the
 global reference frame.
 When the robot moves, previous cells that now fall out of the map are
-reset and values that belong to the new explored area take their place.
+reset and values that belong to the newly explored area take their place.
 
 The map models the elevation of the environment as well as the uncertainty
 of it.
@@ -285,7 +284,7 @@ The most important are
 \end{itemize}
 
 Regarding the last property, it is worth mentioning that the orientation
-of the map is fixed w.r.t. to the global frame.
+of the map is fixed with respect to the global frame.
 This decision was made with a focus on reducing the complexity when performing
 a prediction of the map (see next section).
 
@@ -293,38 +292,38 @@ a prediction of the map (see next section).
 
 Even though the map prediction and update steps are grouped in the
 same submodule, they implement two separate functionalities.
-The map prediction is triggered when a new odometry pose is received and
+The map prediction is triggered when new odometry information is received and
 processed by the Pose Estimation module (Section \ref{pose_estimation}).
 The map update is triggered as soon as a new point cloud arrives from
 the sensor.
 \begin{itemize}
     \item \textbf{Prediction} \\
-        This step is responsible for moving the map when the robot assumes
-        a new position.
+        This step is responsible for translating the map when the
+        robot assumes a new pose.
         This is essentially a simple 2D transformation of the map's position
         in the $x$ and $y$ axes.
-        The robot's orientation is not taken into account, since as we said
-        earlier (Section \ref{map_structure}), the orientation of the map
-        about the $z$ axis is fixed.
+        The robot's orientation is not taken into account, since the
+        orientation of the map about the $z$ axis is fixed
+        (Section \ref{map_structure}).
         To perform the prediction, we simply
 
         \begin{enumerate}
             \item apply the delta translation $(t_x,t_y)$ of the
-                new estimated pose to map and
+                newly estimated pose to map and
             \item keep the height Gaussian $\mathcal{N}(\mu_z, \ \sigma^2_z)$
                 of each cell unchanged
         \end{enumerate}
 
         When a translation is applied to the map, cells that fall out of the
-        map have their values reset and elevation values of the new explored
-        area take their place instead.
+        map have their values reset and elevation values of the newly explored
+        area take their place.
         To avoid unnecessary data copying in memory, the data storage can be
         implemented as a two-dimensional circular buffer.
 
     \item \label{map_update} \textbf{Update} \\
         This is the core step of the Data Registration module, since it
         implements the registration of the input point cloud into the map.
-        The algorithm of the point cloud projection is shown in Algorithm
+        The point cloud projection update procedure is shown in Algorithm
         \ref{alg:map_update}.
 
         It uses a probabilistic approach to take advantage of the
@@ -427,8 +426,8 @@ existing data.
 
 Using sensor fusion we can exploit the multiple sensors equipped in
 a robot to increase the covered area in the map.
-In addition to increased coverage, fusing sensor data that are overlapping
-in the map can increase its quality.
+In addition to increased coverage, fusing overlapping sensor data can
+increase the map's quality.
 
 The way a point cloud is registered (fused) in the map, was already mentioned
 in a previous section (Section \ref{map_update}).
@@ -450,8 +449,8 @@ have a detrimental effect in the navigation of the robot.
 \section{Pose Estimation} \label{pose_estimation}
 
 The pose, or state, of a robot navigating in a 3D environment, consists of
-its position $(x, y, z)$ and its orientation $(roll, pitch, yaw)$ w.r.t.
-a global reference frame.
+its position $(x, y, z)$ and its orientation $(roll, pitch, yaw)$
+with respect to a global reference frame.
 Hence, the goal of pose estimation, also referred to as relative localization,
 is to accurately track the robot's pose in the environment.
 This is usually accomplished by either employing a probabilistic filter,
@@ -474,7 +473,7 @@ axes respectively.
 However, we cannot obtain accurate estimates for the $roll$ and $pitch$ states
 from odometry.
 To overcome this limitation, we use an \textit{inertial measurement unit} (IMU)
-sensor and receive these states directly from it, so the problem state becomes
+sensor and obtain these states directly from it, so the problem state becomes
 \begin{equation}
     \mathbf{x} = {[x \quad y \quad z \quad yaw]}^\intercal
 \end{equation}
@@ -586,6 +585,9 @@ $x_i$, $y_i$ and $\theta_i$ represent the state of the particle,
 $\Delta x$, $\Delta y$ and $\Delta \theta$ are the delta inputs from odometry
 and $\sigma^2_x$, $\sigma^2_y$ and $\sigma^2_\theta$ are the variances of
 the states that define the Gaussian noise that will be added to the particle.
+It is important to mention that the addition of noise to the robot's position
+is a simplification of the standard particle filter methodology,
+where noise is usually added to the robot's velocities.
 
 \subsection{Update} \label{pf_update}
 
@@ -744,11 +746,11 @@ in the Data Registration module (Section \ref{map_update}).
 Although the robot's pose is constantly tracked using a particle filter in the
 Pose Estimation module (Section \ref{pose_estimation}), the approach
 is still based on dead-reckoning due to the fact that all the inputs
-of the process arrive from internal sensors.
+of the process arrive from local sensors.
 As a result, a localization error is accumulated in long-range traverses
 and the robot's pose in the global reference frame is unknown.
 With the aim of bounding this error and achieve absolute (global) localization,
-we have developed an extra component in the system that eliminates
+we have developed an additional component that eliminates
 the drift by matching the local map to an \textit{a priori} global one.
 
 The global map can be reconstructed using imagery taken from an
@@ -1004,7 +1006,7 @@ adopted so as to avoid the use of unnecessary processing power.
 
 For planetary applications, since energy efficiency is of utmost importance,
 it is common for rovers to focus only on one task at each moment.
-Thus, an absolute localization task cannot be run in the middle of
+Thus, an absolute localization task cannot be executed in the middle of
 a traverse, where the robot's motors are at full power.
 An approach that takes this limitation into consideration, is to execute
 the task in the end of the day, when the rover recharges and only

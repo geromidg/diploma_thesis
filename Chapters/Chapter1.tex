@@ -7,26 +7,26 @@ A space exploration vehicle designed to move across the surface of a planet,
 besides Earth, is called a planetary rover as of its ability to "rove over"
 an unknown terrain.
 Planetary rovers are used to collect valuable data and samples such as
-pictures, dust and rocks, which are later analyzed by scientists to enrich
+images, dust and rocks, which are later analyzed by scientists to enrich
 our understanding regarding the universe.
 
 Past missions have sent robots to the Moon and Mars (Figure
 \ref{fig:mars_sites}) with the NASA's Curiosity being the last rover to
-land on Mars in 2011.
+land on Mars in 2012.
 Future missions do not differ much, as new lunar rovers are about to launch
 in the next years and Mars rovers are currently under development scheduled
 to be sent to Mars in 2020.
 
 Such missions utilize a great amount of time and effort to build,
 launch and finally operate.
-Our interest lies in the operation challenges that are caused by the fact
-that no constant communication can be achieved.
+Our interest lies in the operational challenges caused by the fact
+that no persistent communication to the base station can be achieved.
 As an example, commanding messages can take up to 21 minutes to travel
-between the Earth and Mars and bandwidth limitations can limit the number
-of messages that can be sent.
+between the Earth and Mars and restricted bandwidth can limit the number
+of transmitted messages.
 This compounded to the unpredictable and unsafe conditions of
-an unknown terrain such as the Mars surface which is full of rocks,
-could lead to destructive system crashes of a costly mission.
+a harsh terrain such as the Mars surface,
+could lead to fatal system crashes of a costly mission.
 
 Thus, we emphasize the need of a real time platform that will provide the
 capability of autonomous operation with low supervision from ground control
@@ -47,7 +47,7 @@ In order to navigate autonomously in extreme terrains, rovers need to
 accurately perceive the 3D environment around them based on sensory
 information.
 Terrains that classify as extreme are areas with high variance in elevation
-and great morphological anomalies, such as rocks and craters.
+and great morphological anomalies, including rocks and craters.
 
 This thesis actively researches the challenges of perception in such terrains
 in a planetary context and mainly focuses on two problems.
@@ -65,7 +65,7 @@ Specifically, given as inputs:
         and
     \item an a priori low resolution map of the greater area,
 \end{enumerate*}
-the purpose is to output:
+the purpose is to produce:
 \begin{enumerate*}[label=(\roman*)]
     \item an accurate estimation of the position and orientation of the
         robot in a global reference frame and
@@ -95,8 +95,8 @@ we first assume the following:
 In early robotics research, localization and mapping were tackled
 independently.
 This is related to the fact that they have a cyclic inter-dependency.
-On the one hand, a map can only be created when the robot’s pose is known.
-On the other hand, we need an accurate map representation in order to
+On the one hand, a map can only be created when the robot’s pose is known,
+whilst on the other hand, we need an accurate map representation in order to
 perform localization.
 Nevertheless, both tasks usually need to be performed simultaneously:
 in this case we speak of Simultaneous Localization and Mapping (SLAM).
@@ -118,7 +118,7 @@ SLAM problems can be distinguished in several ways \parencite{Jefferies2008}:
         measurement outliers.
     \item \textbf{Active versus passive}:
         In passive SLAM algorithms, the SLAM algorithm cannot affect the
-        movement of the robot and is purely observing.
+        movement of the robot which is purely observing.
         In active SLAM, the robot actively explores its environment in
         the pursuit of an accurate map.
         Active SLAM methods tend to yield more accurate maps in less time,
@@ -131,9 +131,6 @@ SLAM problems can be distinguished in several ways \parencite{Jefferies2008}:
         map as soon as the data acquisition is completed.
         Online-SLAM, on the other hand, assumes that the previous poses are a
         continuous estimate and a map is built on the fly.
-        Although full-SLAM techniques are easier to implement, online-SLAM
-        is more useful since the localization and mapping can be used in
-        real-time.
 \end{itemize}
 
 As such, an autonomous planetary rover would require an online and volumetric
@@ -158,9 +155,9 @@ and update cycle to estimate the state of a dynamical system from
 sensor measurements, and has similar applications as the Kalman filter,
 but handles large dimensionality better \parencite{Thrun2005}.
 
-Interestingly this approach can be used to solve both the online and
+Interestingly, this approach can be used to solve both the online and
 full-SLAM problem simultaneously using a grid-map based approach.
-Particle filters has become one of the most common approaches to
+Particle filters have become one of the most common approaches of
 solving the SLAM problem in modern robotics.
 Popular algorithms include FastSLAM \parencite{Montemerlo2002} which
 uses a class of particle filters called Rao-Blackwellized particle filters
@@ -168,7 +165,7 @@ uses a class of particle filters called Rao-Blackwellized particle filters
 \parencite{Grisettiyz2005} which uses a combination of particle filters
 and scan matching.
 
-Scan matching is one of the oldest and easiest to implement method used
+Scan matching is one of the oldest and easiest to implement methods used
 to solve the SLAM problem using Occupancy Grid Maps (OGM) - maps that
 represent the continuous space using a discrete uniform grid.
 In scan matching, the position of the robot is calculated by matching,
@@ -210,12 +207,12 @@ Skyline based methods attempt to estimate the global position of a rover
 by matching the skyline of the horizon, with skylines extracted from
 the global map \parencite{Stein1992, Cozman1997}.
 The VIPER algorithm \parencite{Cozman2000} is a global localization
-algorithm that is matching the horizon skyline signature captured by a
-panoramic picture acquired by the rover to predicted skylines signatures
+algorithm that matches the horizon skyline signature captured by a
+panoramic picture acquired by the rover, to predicted skylines signatures
 at various positions on the global map.
-It has been proven efficient in the "lost in space situation",
+It has been proven efficient in the global localization problem,
 where the rover's initial position is not known, and is rather quick because
-it is precomputes offline the skylines of the global map.
+it precomputes the skylines of the global map in an offline fashion.
 It yields an estimation accuracy of $\SI{100}{\m}$ to $\SI{150}{\m}$ on a
 $\SI{30}{\m \per pixel}$ digital elevation map (DEM).
 However, this approach is not behaving smoothly in cases where the horizon
@@ -224,18 +221,18 @@ to allow the prediction of the skyline.
 
 \subsubsection{Feature-based}
 
-Featured-based approaches, in general, extract at first interest points
+Featured-based approaches, in general, initially extract interest points
 from the global and local maps and then they match them in search of
 global-local feature correspondences.
 
 MOGA \parencite{Carle2010} is another solution to the long-range localization
-problem with an approach similar to that of VIPER, but using 3D maps
+problem with an approach similar to VIPER's, but uses 3D maps
 instead of 2D images.
 In particular, it was observed that capturing 3D peak features has
 better alignment performance.
 The methodology was tested with real data, including 37 LiDAR scans of
 terrain from a Mars-Moon analog site on Devon Island, Nunavut.
-LiDARs though, are hardly used in a planetary rovers due to the heavy
+LiDARs though, are hardly used in planetary rovers due to the heavy
 weight and high power consumption, as well as their big data range,
 that results to heavy calculations.
 

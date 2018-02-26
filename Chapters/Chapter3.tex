@@ -62,6 +62,11 @@ the orientation and acceleration of the robot.
 Although the rest of the sensors are not actively used by our system,
 they can be exploited for validation purposes.
 
+Finally, in order to fulfill the onboard computational requirements, the
+rover is accompanied by a powerful computer with an Intel\textcopyright\
+Core\texttrademark\ i7 processor clocked at $\SI{3.90}{\giga\hertz}$ and
+$\SI{16}{\giga B}$ of RAM.
+
 \section{Overall System Architecture}
 
 As we mentioned previously, the GA SLAM system was designed to function
@@ -74,7 +79,7 @@ For the former we employ the PanCam stereo camera and for the latter we make
 use of the LocCam stereo camera.
 Furthermore, we exploit the measurements received from the IMU to augment
 the estimation of the robot's pose.
-The utilization of each sensor of the HDPR rover w.r.t. to our system,
+The utilization of each sensor of the HDPR rover with respect to our system,
 is shown in the system component diagram of Figure
 \ref{fig:system_component_diagram}.
 
