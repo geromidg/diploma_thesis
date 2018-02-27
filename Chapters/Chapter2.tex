@@ -165,23 +165,23 @@ that consists of the following four steps:
         \begin{aligned}
             &min\_cutoff\_point =
                 \left( \
-                    - \frac{l_x}{2} - t_x, \
-                    - \frac{l_y}{2} - t_y, \
-                    z_{min} \
+                    t_x - \frac{l_x}{2}, \
+                    t_y - \frac{l_y}{2}, \
+                    t_z + z_{min} \
                 \right) \\
             &max\_cutoff\_point =
                 \left( \
-                    \frac{l_x}{2} + t_x, \
-                    \frac{l_y}{2} + t_y, \
-                    z_{max} \
+                    t_x + \frac{l_x}{2}, \
+                    t_y + \frac{l_y}{2}, \
+                    t_z + z_{max} \
                 \right)
         \end{aligned}
         \end{equation}
         where
         $l_x$ and $l_y$ are the dimensions of the map in meters in the
         x and y axis,
-        $t_x$ and $t_y$ represent the translation of the map in meters in the
-        x and y axis of the global coordinate system and
+        $t_x$, $t_y$ and $t_z$ represent the translation of the robot in
+        meters in the x, y and z axes of the global coordinate system and
         $z_{min}$ and $z_{max}$ are the minimum and maximum elevation values
         of the map.
 
@@ -470,15 +470,16 @@ First, we assume the state of the problem to be
 \end{equation}
 where $roll$, $pitch$ and $yaw$ are the rotations about the $x$, $y$ and $z$
 axes respectively.
-However, we cannot obtain accurate estimates for the $roll$ and $pitch$ states
-from odometry.
-To overcome this limitation, we use an \textit{inertial measurement unit} (IMU)
-sensor and obtain these states directly from it, so the problem state becomes
+However, since we cannot estimate the $roll$ and $pitch$ states
+using odometry, it is possible to reliably obtain them directly from an
+\textit{inertial measurement unit} (IMU) sensor.
+Consequently, the problem state becomes
 \begin{equation}
     \mathbf{x} = {[x \quad y \quad z \quad yaw]}^\intercal
 \end{equation}
-By making the assumption that the $z$ estimation from odometry is accurate
-in an area near the robot, the state can be further simplified as
+Additionally, since the variance in the robot's elevation is relatively
+small near the area of the local map, we can use the $z$ estimation directly
+from odometry and further simplify the state as
 \begin{equation}
     \mathbf{x} = {[x \quad y \quad yaw]}^\intercal
 \end{equation}
@@ -597,7 +598,7 @@ In particular, for every particle, the input point cloud is matched with
 a point cloud extracted from the robot's local map using
 an \text{Iterative Closest Point} (ICP) variant \parencite{Zhang1994}.
 
-For the purpose of achieving a fast convergence of the ICP,
+For the purpose of achieving a fast execution of the ICP,
 we first preprocess the inputs as such:
 \begin{enumerate*}[label=(\roman*)]
     \item crop the raw point cloud (sensor scan) to the local map's size

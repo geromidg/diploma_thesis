@@ -99,7 +99,7 @@ surrounding environment of the rover, i.e. features that determine if
 the rover is able to traverse a specific area.
 At a next layer, the traversability map and the estimated pose from SLAM
 can be utilized by a path planning module, with the aim to provide
-autonomously control the rover in an unknown environment.
+autonomous control of the rover in an unknown environment.
 Finally, It should be noted that the choice of visual odometry
 instead of plain wheel odometry, comes from the fact that a robot is prone
 to slippage in outdoor environments, and more specifically planetary terrains.
@@ -108,10 +108,11 @@ to slippage in outdoor environments, and more specifically planetary terrains.
 
 The GA SLAM system \footnote{GA SLAM: \url{https://github.com/geromidg/GA_SLAM}}
 was implemented as a framework-independent library for C++ and depends only
-on libraries for linear algebra, point cloud processing and image processing.
+on libraries for linear algebra (Eigen), point cloud processing (PCL)
+and image processing (OpenCV).
 However, with the aim to provide integration with the rest of HDPR's
-software modules and tools, we developed a component to bridge
-the library using the Robot Construction Toolkit (ROCK)
+software modules and tools, we developed a component to exploit the
+functionality of the library within the Robot Construction Toolkit (ROCK)
 \footnote{ROCK: \url{https://www.rock-robotics.org}}.
 
 ROCK is a software framework for the development of robotic systems,

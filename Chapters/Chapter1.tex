@@ -28,7 +28,7 @@ This compounded to the unpredictable and unsafe conditions of
 a harsh terrain such as the Mars surface,
 could lead to fatal system crashes of a costly mission.
 
-Thus, we emphasize the need of a real time platform that will provide the
+Thus, we emphasize the need of a platform that will provide the
 capability of autonomous operation with low supervision from ground control
 as far as navigation is concerned.
 
@@ -37,6 +37,7 @@ as far as navigation is concerned.
     \includegraphics[scale=0.15]{mars_sites}
     \caption[Mars landing sites]{
         Mars landing sites of rovers and landers from NASA's past missions.
+        \textit{(NASA / JPL-Caltech)}
     }
     \label{fig:mars_sites}
 \end{figure}
@@ -69,7 +70,7 @@ the purpose is to produce:
 \begin{enumerate*}[label=(\roman*)]
     \item an accurate estimation of the position and orientation of the
         robot in a global reference frame and
-    \item a local (robot-centric) map that represents the height of
+    \item a local (robot-centric) map that represents the traversability of
         the environment.
 \end{enumerate*}
 
@@ -128,7 +129,7 @@ SLAM problems can be distinguished in several ways \parencite{Jefferies2008}:
         but not the motion direction.
     \item \textbf{Full vs online}:
         Full-SLAM approaches calculate the entire path and construct the
-        map as soon as the data acquisition is completed.
+        map as soon as new data is obtained.
         Online-SLAM, on the other hand, assumes that the previous poses are a
         continuous estimate and a map is built on the fly.
 \end{itemize}
